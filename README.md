@@ -2,9 +2,11 @@
 
 > An electron-vue project
 
+### node version 10.16.0、12.4.0
+
 #### Build Setup
 
-``` bash
+```bash
 # install dependencies
 npm install
 

@@ -1,17 +1,28 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from "vue";
+import Vuex from "vuex";
 
-import { createPersistedState, createSharedMutations } from 'vuex-electron'
+import { createPersistedState, createSharedMutations } from "vuex-electron";
 
-import modules from './modules'
+import modules from "./modules";
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
+  state: {
+    dropIntoFilePath: null,
+    path: __dirname,
+  },
+  mutations: {
+    changePath(state, payload) {
+      state.dropIntoFilePath = payload;
+    },
+  },
+  actions: {
+    changeDropIntoFilePath(store, payload) {
+      store.commit("changePath", payload);
+    },
+  },
   modules,
-  plugins: [
-    createPersistedState(),
-    createSharedMutations()
-  ],
-  strict: process.env.NODE_ENV !== 'production'
-})
+  plugins: [createPersistedState(), createSharedMutations()],
+  strict: process.env.NODE_ENV !== "production",
+});
