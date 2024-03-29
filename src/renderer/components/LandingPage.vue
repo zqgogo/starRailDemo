@@ -37,9 +37,7 @@
         <div class="tabs">
           <div
             class="tabItem"
-            :style="`backgroundColor: ${
-              tabIndex === index ? visionColor[roleVision[tabItem.role]] : ''
-            }`"
+            :style="`backgroundColor: ${tabIndex === index ? '#409EFF' : ''}`"
             v-for="(tabItem, index) in tabsList"
             :key="index"
             @click="tabChange(index)"
@@ -49,12 +47,18 @@
           </div>
         </div>
 
-        <div class="roles">
+        <div class="roles" ref="roles">
           <div
             class="role"
+            :class="[{ active: roleItem.key === showRoleKey }]"
             v-for="(roleItem, roleIndex) in tabsList[tabIndex].children"
             :key="roleIndex"
             @click="showDetail(roleItem)"
+            :style="`backgroundColor: ${
+              roleItem.key === showRoleKey
+                ? visionColor[roleVision[showRoleKey]]
+                : ''
+            }`"
           >
             <div class="roleImg">
               <img :src="roleItem.head" />
@@ -64,6 +68,7 @@
         </div>
 
         <div class="roleMods">
+          <div class="roleName">{{ detailItem.name }}</div>
           <div
             class="modName"
             :class="[{ active: modIndex === index }]"
@@ -82,8 +87,8 @@
               v-if="!!modList[modIndex].imgs && modList[modIndex].imgs.length"
             >
               <el-carousel-item
-                v-for="item in modList[modIndex].imgs"
-                :key="item"
+                v-for="(item, imgIndex) in modList[modIndex].imgs"
+                :key="imgIndex"
               >
                 <img :src="item" />
               </el-carousel-item>
@@ -91,10 +96,13 @@
             <div v-else class="noImg"><img :src="detailItem.head" /></div>
             <div class="buttons">
               <el-button type="primary" size="mini" @click="applyMod()"
-                >應用</el-button
+                >应用</el-button
               >
               <el-button type="primary" size="mini" @click="applyMod(true)"
-                >卸載</el-button
+                >卸载</el-button
+              >
+              <el-button type="danger" size="mini" @click="deleteMod()"
+                >删除</el-button
               >
             </div>
           </template>
@@ -150,6 +158,7 @@
 
 <script>
 import { head, head2 } from "../utils/img.js";
+import { deepClone } from "../utils/index.js";
 import {
   roleVision,
   visionColor,
@@ -220,8 +229,7 @@ export default {
 
   watch: {
     dropIntoFilePath(url) {
-      let path = url;
-      console.log(this.$store.commit);
+      let path = decodeURIComponent(url || "");
       console.log("拖拽进来的文件夹路径:", path);
       if (!!path) {
         this.addMod(path);
@@ -264,20 +272,33 @@ export default {
       this.tabIndex = index;
     },
 
-    showDetail(item) {
-      console.log(item);
+    showDetail(item, modIndex = -1) {
       if (this.showRoleKey === item.key) return;
+      let detailItem = deepClone(this.detailItem);
       this.detailItem = item;
       this.showRoleKey = item.key;
-      this.modIndex = -1;
+      this.modIndex = modIndex;
+
+      // 定位到角色
+      this.$nextTick(() => {
+        if (!detailItem) {
+          let rolesDom = this.$refs.roles;
+          console.dir(rolesDom);
+          let roleIndex = this.tabsList[this.tabIndex].children.findIndex(
+            (item) => item.key === this.showRoleKey
+          );
+          let top = roleIndex * 120;
+          rolesDom.scrollTop = top;
+        }
+      });
       if (!!this.showRoleKey) {
-        this.modList = this.configData[this.showRoleKey] || [];
-        if (this.modList.length > 0) this.modChange(0);
+        this.modList = deepClone(this.configData)[this.showRoleKey] || [];
+        if (this.modList.length > 0 && modIndex === -1) this.modChange(0);
       }
     },
 
     roleChange() {
-      let roleItem = this.tabsList[tabIndex].children.find(
+      let roleItem = this.tabsList[this.tabIndex].children.find(
         (i) => i.key === this.form.roleKey
       );
       console.log(roleItem);
@@ -289,10 +310,8 @@ export default {
     modChange(index) {
       this.modIndex = index;
       let modItem = this.modList[index];
-      console.log(modItem);
       if (!!modItem) {
         let files = this.readDir(modItem.modPath);
-        console.log(files);
         let imgs = files.filter((fileName) => {
           if (!!fileName) {
             let arr = fileName.toString().split(".");
@@ -318,12 +337,17 @@ export default {
     addMod(path) {
       // 彈窗確認
       if (path === true) {
+        let configData = deepClone(this.configData);
         let modList = [
-          ...(this.configData[this.form.roleKey] || []),
-          JSON.parse(JSON.stringify(this.form)),
+          ...(configData[this.form.roleKey] || []),
+          deepClone(this.form),
         ];
-        this.configData[this.form.roleKey] = modList;
+        configData[this.form.roleKey] = modList;
+        this.configData = configData;
         this.updateConfig();
+
+        this.modList = modList;
+        if (this.modIndex === -1) this.modChange(0);
         this.dialogVisible = false;
         this.$message({
           message: "添加成功",
@@ -334,6 +358,14 @@ export default {
 
       let newPath = path.toString().split("file:///")[1];
       this.store.dispatch("changeDropIntoFilePath", null);
+      if (newPath.toString().includes(".png")) {
+        if (!this.detailItem) return;
+        let modItem = this.modList[this.modIndex];
+        let fileName = newPath.split("/").pop();
+        this.fs.copyFileSync(newPath, `${modItem.modPath}/${fileName}`);
+        this.modChange(this.modIndex);
+        return;
+      }
       // this.readDir(newPath);
       let modName = newPath.split("/");
       modName = modName[modName.length - 1];
@@ -386,31 +418,46 @@ export default {
 
     // 應用mod
     applyMod(isDelete = false) {
-      let modInfo = this.modList[this.modIndex];
-      console.log(modInfo);
+      let modInfo = deepClone(this.modList[this.modIndex]);
       // 讀取mod目錄下文件
       // let modsPath = "G:/test/HsrModManage/Mods";
       let modsPath = this.configData.modsPath;
       let mods = this.readDir(modsPath);
-      console.log(mods);
       let repeatModFileName = mods.find((name) =>
         name.includes(`${modInfo.roleName}_`)
       );
-      console.log(repeatModFileName);
-      if (!!repeatModFileName) {
-        this.fsextra.removeSync(`${modsPath}${repeatModFileName}`);
-      }
+      try {
+        if (!!repeatModFileName) {
+          this.fsextra.removeSync(`${modsPath}/${repeatModFileName}`);
+        }
 
-      console.log(!isDelete);
-      if (!isDelete) {
-        let modPath = `${modsPath}/${modInfo.roleName}_${modInfo.modName}`;
-        console.log(modInfo.modPath, modPath);
-        this.fsextra.copySync(modInfo.modPath, modPath);
-        this.$message({
-          message: "應用成功",
-          type: "success",
-        });
-      }
+        if (!isDelete) {
+          let modPath = `${modsPath}/${modInfo.roleName}_${modInfo.modName}`;
+          this.fsextra.copySync(modInfo.modPath, modPath);
+          this.$message({
+            message: "應用成功",
+            type: "success",
+          });
+        } else {
+          this.$message({
+            message: "卸載成功",
+            type: "success",
+          });
+        }
+      } catch (error) {}
+    },
+
+    // 删除mod记录
+    deleteMod() {
+      this.modList = this.modList.filter((item, index) => {
+        return index !== this.modIndex;
+      });
+      this.configData[this.showRoleKey] = deepClone(this.modList).map((i) => {
+        delete i.imgs;
+        return i;
+      });
+      this.modIndex += -1;
+      this.updateConfig();
     },
   },
 };
@@ -538,8 +585,8 @@ body {
       height: 100%;
       overflow-y: auto;
       position: relative;
-      border-left: 2px solid red;
-      border-right: 2px solid red;
+      border-left: 2px solid #909399;
+      border-right: 2px solid #909399;
 
       &::-webkit-scrollbar {
         width: 8px;
@@ -557,6 +604,10 @@ body {
 
       .role {
         padding: 0;
+
+        &.active {
+          background-color: #409eff;
+        }
       }
 
       .roleName {
@@ -568,16 +619,23 @@ body {
       width: 200px;
       height: 30px;
       line-height: 30px;
-      padding: 0 10px;
       height: 100%;
       overflow-y: auto;
 
+      .roleName {
+        text-align: center;
+        font-weight: bold;
+        font-size: 20px;
+        border-bottom: 1px solid #909399;
+      }
+
       .modName {
+        padding: 0 10px;
         cursor: pointer;
 
         &:hover,
         &.active {
-          color: red;
+          color: #409eff;
         }
       }
     }
@@ -585,7 +643,7 @@ body {
     .roleModDetail {
       flex: 1;
       position: relative;
-      border-left: 2px solid red;
+      border-left: 2px solid #909399;
 
       .noImg {
         width: 100%;

@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  name: "hsr-mod-manage",
+  name: "HsrModManage",
 };
 </script>
 

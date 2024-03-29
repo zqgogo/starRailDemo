@@ -23,9 +23,10 @@ function createWindow() {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 563,
+    height: 800,
+    width: 1200,
     useContentSize: true,
-    width: 1000,
+    icon: "./appIcon.png",
   });
 
   mainWindow.loadURL(winURL);

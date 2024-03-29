@@ -6,103 +6,103 @@ export let roleVision = {
   // Aether: 'test', // Aether 空
   // ============================
   // ****蒙德
-  // Jean: 'test', // Jean 琴
-  // Amber: 'test', // Amber 安柏
-  // Lisa: 'test', // Lisa 丽莎
-  // Barbara: 'test', // Barbara 芭芭拉
+  Jean: "feng", // Jean 琴
+  Amber: "huo", // Amber 安柏
+  Lisa: "lei", // Lisa 丽莎
+  Barbara: "shui", // Barbara 芭芭拉
   Klee: "huo", // Klee 可莉
-  // Noelle: 'test', // Noelle 诺艾尔
-  // Fischl: 'test', // Fischl 菲谢尔
-  // Sucrose: 'test', // Sucrose 砂糖
-  // Mona: 'test', // Mona 莫娜
-  // Diona: 'test', // Diona 迪奥娜
-  // Rosaria: 'test', // Rosaria 罗莎莉亚
-  // Eula: 'test', // Eula 优菈
+  Noelle: "yan", // Noelle 诺艾尔
+  Fischl: "lei", // Fischl 菲谢尔
+  Sucrose: "feng", // Sucrose 砂糖
+  Mona: "shui", // Mona 莫娜
+  Diona: "bing", // Diona 迪奥娜
+  Rosaria: "bing", // Rosaria 罗莎莉亚
+  Eula: "bing", // Eula 优菈
   // // ------------
-  // Mika: 'test', // Mika 米卡
-  // Kaeya: 'test', // Kaeya 凯亚
-  // Diluc: 'test', // Diluc 迪卢克
-  // Razor: 'test', // Razor 雷泽
-  // Venti: 'test', // Venti 温蒂
-  // Bennett: 'test', // Bennett 班尼特
-  // Albedo: 'test', // Albedo 阿贝多
+  Mika: "bing", // Mika 米卡
+  Kaeya: "bing", // Kaeya 凯亚
+  Diluc: "huo", // Diluc 迪卢克
+  Razor: "lei", // Razor 雷泽
+  Venti: "feng", // Venti 温蒂
+  Bennett: "huo", // Bennett 班尼特
+  Albedo: "yan", // Albedo 阿贝多
   // ============================
   // ****璃月
-  // Ningguang: 'test', // Ningguang 凝光
-  // Keqing: 'test', // Keqing 刻晴
-  // Ganyu: 'test', // Ganyu 甘雨
-  // Beidou: 'test', // Beidou 北斗
-  // Hutao: 'test', // Hutao 胡桃
-  // Qiqi: 'test', // Qiqi 七七
-  // Xiangling: 'test', // Xiangling 香菱
-  // Xinyan: 'test', // Xinyan 辛焱
-  // Yanfei: 'test', // Yanfei 烟绯
-  // Shenhe: 'test', // Shenhe 申鹤
-  // Yunjin: 'test', // Yunjin 云堇
-  // Yelan: 'test', // Yelan 夜兰
-  // Yaoyao: 'test', // Yaoyao 瑶瑶
+  Ningguang: "yan", // Ningguang 凝光
+  Keqing: "lei", // Keqing 刻晴
+  Ganyu: "bing", // Ganyu 甘雨
+  Beidou: "lei", // Beidou 北斗
+  Hutao: "huo", // Hutao 胡桃
+  Qiqi: "bing", // Qiqi 七七
+  Xiangling: "huo", // Xiangling 香菱
+  Xinyan: "huo", // Xinyan 辛焱
+  Yanfei: "huo", // Yanfei 烟绯
+  Shenhe: "bing", // Shenhe 申鹤
+  Yunjin: "yan", // Yunjin 云堇
+  Yelan: "shui", // Yelan 夜兰
+  Yaoyao: "cao", // Yaoyao 瑶瑶
   Xianyun: "feng", // Xianyun 闲云
-  // // ------------
+  // ------------
   Gaming: "huo", // Gaming 嘉明
-  // Zhongli: 'test', // Zhongli 钟离
-  // Xiao: 'test', // Xiao 魈
-  // Xingqiu: 'test', // Xingqiu 行秋
-  // Chongyun: 'test', // Chongyun 重云
-  // Baizhu: 'test', // Baizhu 白术
-  // // ============================
-  // // ****稻妻
-  // Ayaka: 'test', // Ayaka 神里凌华
-  // RaidenEi: 'test', // RaidenEi 雷电将军
-  // Yoimiya: 'test', // Yoimiya 宵宫
-  // Sayu: 'test', // Sayu 早柚
-  // Sara: 'test', // Sara 九条裟罗
-  // Kokomi: 'test', // Kokomi 珊瑚宫心海
-  // Miko: 'test', // Miko 八重神子
-  // Shinobu: 'test', // Shinobu 久岐忍
-  // Kirara: 'test', // Kirara 绮良良
-  // Chiori: 'test', // Chiori 千织
+  Zhongli: "yan", // Zhongli 钟离
+  Xiao: "feng", // Xiao 魈
+  Xingqiu: "shui", // Xingqiu 行秋
+  Chongyun: "bing", // Chongyun 重云
+  Baizhu: "cao", // Baizhu 白术
+  // ============================
+  // ****稻妻
+  Ayaka: "bing", // Ayaka 神里凌华
+  RaidenEi: "lei", // RaidenEi 雷电将军
+  Yoimiya: "huo", // Yoimiya 宵宫
+  Sayu: "feng", // Sayu 早柚
+  Sara: "lei", // Sara 九条裟罗
+  Kokomi: "shui", // Kokomi 珊瑚宫心海
+  Miko: "lei", // Miko 八重神子
+  Shinobu: "lei", // Shinobu 久岐忍
+  Kirara: "cao", // Kirara 绮良良
+  Chiori: "yan", // Chiori 千织
+  // ------------
+  Kazuha: "feng", // Kazuha 枫原万叶
+  Thoma: "huo", // Thoma 托马
+  Gorou: "yan", // Gorou 五郎
+  Itto: "yan", // Itto 荒泷一斗
+  Ayato: "shui", // Ayato 神里绫人
+  Heizou: "feng", // Heizou 鹿野院平藏
+  // ============================
+  // ****须弥
+  Collei: "cao", // Collei 科莱
+  Dori: "lei", // Dori 多莉
+  Candace: "shui", // Candace 坎蒂丝
+  Nilou: "shui", // Nilou 妮露
+  Nahida: "cao", // Nahida 纳西妲
+  Layla: "bing", // Layla 莱依拉
+  Faruzan: "feng", // Faruzan 珐露珊
+  Dehya: "huo", // Dehya 迪希雅
   // // ------------
-  // Kazuha: 'test', // Kazuha 枫原万叶
-  // Thoma: 'test', // Thoma 托马
-  // Gorou: 'test', // Gorou 五郎
-  // Itto: 'test', // Itto 荒泷一斗
-  // Ayato: 'test', // Ayato 神里绫人
-  // Heizou: 'test', // Heizou 鹿野院平藏
-  // // ============================
-  // // ****须弥
-  // Collei: 'test', // Collei 科莱
-  // Dori: 'test', // Dori 多莉
-  // Candace: 'test', // Candace 坎蒂丝
-  // Nilou: 'test', // Nilou 妮露
-  // Nahida: 'test', // Nahida 纳西妲
-  // Layla: 'test', // Layla 莱依拉
-  // Faruzan: 'test', // Faruzan 珐露珊
-  // Dehya: 'test', // Dehya 迪希雅
-  // // ------------
-  // Tighnari: 'test', // Tighnari 缇纳里
-  // Cyno: 'test', // Cyno 赛诺
-  // Wanderer: 'test', // Wanderer 流浪者
-  // Alhaitham: 'test', // Alhaitham 艾尔海森
-  // Kaveh: 'test', // Kaveh 卡维
-  // // ============================
-  // // ****枫丹
-  // Lynette: 'test', // Lynette 琳妮特
-  // Furina: 'test', // Furina 芙宁娜
-  // Charlotte: 'test', // Charlotte 夏洛蒂
-  // Navia: 'test', // Navia 娜维娅
-  // Chevreuse: 'test', // Chevreuse 夏沃蕾
-  // // ------------
-  // Lyney: 'test', // Lyney 林尼
-  // Freminet: 'test', // Freminet 菲米尼
-  // Neuvillette: 'test', // Neuvillette 那维莱特
-  // Wriothesley: 'test', // Wriothesley 莱欧斯利
-  // // ============================
-  // // ****至冬
-  // // ------------
-  // Tartaglia: 'test', // Tartaglia 达达利亚
-  // // ============================
-  // // ****异界
-  // Aloy: 'test', // Aloy 埃洛伊
+  Tighnari: "cao", // Tighnari 缇纳里
+  Cyno: "lei", // Cyno 赛诺
+  Wanderer: "feng", // Wanderer 流浪者
+  Alhaitham: "cao", // Alhaitham 艾尔海森
+  Kaveh: "cao", // Kaveh 卡维
+  // ============================
+  // ****枫丹
+  Lynette: "feng", // Lynette 琳妮特
+  Furina: "shui", // Furina 芙宁娜
+  Charlotte: "bing", // Charlotte 夏洛蒂
+  Navia: "yan", // Navia 娜维娅
+  Chevreuse: "huo", // Chevreuse 夏沃蕾
+  // ------------
+  Lyney: "huo", // Lyney 林尼
+  Freminet: "bing", // Freminet 菲米尼
+  Neuvillette: "shui", // Neuvillette 那维莱特
+  Wriothesley: "bing", // Wriothesley 莱欧斯利
+  // ============================
+  // ****至冬
+  // ------------
+  Tartaglia: "shui", // Tartaglia 达达利亚
+  // ============================
+  // ****异界
+  Aloy: "bing", // Aloy 埃洛伊
 };
 
 export let roleName = {
