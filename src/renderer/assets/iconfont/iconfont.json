@@ -1,0 +1,23 @@
+{
+  "id": "4498648",
+  "name": "modManage",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1206346",
+      "name": "三角",
+      "font_class": "sanjiao",
+      "unicode": "e622",
+      "unicode_decimal": 58914
+    },
+    {
+      "icon_id": "7597977",
+      "name": "change",
+      "font_class": "change",
+      "unicode": "eb73",
+      "unicode_decimal": 60275
+    }
+  ]
+}

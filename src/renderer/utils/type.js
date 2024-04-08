@@ -239,6 +239,8 @@ export let roleSexType = {
     "Candace",
     "Dehya",
     "Navia",
+  ],
+  girl: [
     "Amber",
     "Barbara",
     "Noelle",
@@ -268,9 +270,8 @@ export let roleSexType = {
     "Chevreuse",
     "Aloy",
     "Lumine",
-    "Paimon",
   ],
-  loli: ["Klee", "Diona", "Qiqi", "Yaoyao", "Sayu", "Dori", "Nahida"],
+  loli: ["Klee", "Diona", "Qiqi", "Yaoyao", "Sayu", "Dori", "Nahida", "Paimon"],
   man: [
     "Aether",
     "Mika",
