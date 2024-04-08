@@ -22,7 +22,7 @@ Trace:
 
 npm manifest: 
   {
-    "name": "hsr-mod-manage",
+    "name": "mihoyo-mod-manage",
     "version": "0.0.1",
     "author": "lingfeng <474565262@qq.com>",
     "description": "An electron-vue project",
@@ -40,7 +40,7 @@ npm manifest:
       "postinstall": ""
     },
     "build": {
-      "productName": "hsr-mod-manage",
+      "productName": "mihoyo-mod-manage",
       "appId": "com.example.yourapp",
       "directories": {
         "output": "build"

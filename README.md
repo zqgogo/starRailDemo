@@ -1,4 +1,4 @@
-# hsr-mod-manage
+# mihoyo-mod-manage
 
 > An electron-vue project
 

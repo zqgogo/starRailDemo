@@ -1,5 +1,5 @@
 {
-  "name": "hsr-mod-manage",
+  "name": "mihoyo-mod-manage",
   "version": "0.0.1",
   "author": "lingfeng <474565262@qq.com>",
   "description": "An electron-vue project",
@@ -17,8 +17,8 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "HsrModManage",
-    "appId": "com.example.yourapp",
+    "productName": "米哈游模组管理器",
+    "appId": "com.mihoyo.modManager",
     "directories": {
       "output": "build"
     },

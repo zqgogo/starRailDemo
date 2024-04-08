@@ -349,10 +349,16 @@ export default {
         this.modList = modList;
         if (this.modIndex === -1) this.modChange(0);
         this.dialogVisible = false;
-        this.$message({
+        this.$notify({
+          title: "成功",
           message: "添加成功",
           type: "success",
+          position: "top-left",
         });
+        // this.$message({
+        //   message: "添加成功",
+        //   type: "success",
+        // });
         return;
       }
 
@@ -420,7 +426,7 @@ export default {
     applyMod(isDelete = false) {
       let modInfo = deepClone(this.modList[this.modIndex]);
       // 讀取mod目錄下文件
-      // let modsPath = "G:/test/HsrModManage/Mods";
+      // let modsPath = "G:/test/MihoyoModManage/Mods";
       let modsPath = this.configData.modsPath;
       let mods = this.readDir(modsPath);
       let repeatModFileName = mods.find((name) =>
@@ -434,14 +440,26 @@ export default {
         if (!isDelete) {
           let modPath = `${modsPath}/${modInfo.roleName}_${modInfo.modName}`;
           this.fsextra.copySync(modInfo.modPath, modPath);
-          this.$message({
-            message: "應用成功",
+          // this.$message({
+          //   message: "應用成功",
+          //   type: "success",
+          // });
+          this.$notify({
+            title: "成功",
+            message: "应用成功",
             type: "success",
+            position: "top-left",
           });
         } else {
-          this.$message({
-            message: "卸載成功",
+          // this.$message({
+          //   message: "卸载成功",
+          //   type: "success",
+          // });
+          this.$notify({
+            title: "成功",
+            message: "卸载成功",
             type: "success",
+            position: "top-left",
           });
         }
       } catch (error) {}
