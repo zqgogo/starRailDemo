@@ -1,6 +1,6 @@
 # mihoyo-mod-manage
 
-> 一個用來管理原神星鐵 mod 的管理器
+> 一個用來管理原神星鐵 mod 的管理神器
 
 ### node version
 
