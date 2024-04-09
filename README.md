@@ -1,8 +1,10 @@
 # mihoyo-mod-manage
 
-> An electron-vue project
+> 一個用來管理原神星鐵 mod 的管理器
 
-### node version 10.16.0、12.4.0
+### node version
+
+node 版本請使用 12.4.0
 
 #### Build Setup
 
