@@ -85,7 +85,8 @@
             <div class="modIcon">
               <div class="point"></div>
             </div>
-            <div class="modName">{{ mod.modName }}</div>
+            <div class="modName" :title="mod.modName">{{ mod.modName }}</div>
+            <i class="el-icon-delete-solid deleteMod" @click.stop="deleteMod(index)"></i>
           </div>
         </div>
         <div class="noModData" v-if="activeItemMods.length === 0">暂无mod数据</div>
@@ -105,7 +106,17 @@
             <img :src="item" />
           </el-carousel-item>
         </el-carousel>
+        <!-- mod名称 -->
+        <div class="modDetailName">{{ activeItemMods[modIndex].modName }}</div>
         <!-- 按鈕區域 -->
+        <div class="buttons">
+          <el-button type="primary" size="mini" @click="applyMod()"
+            >应用</el-button
+          >
+          <el-button type="primary" size="mini" @click="applyMod(true)"
+            >卸载</el-button
+          >
+        </div>
       </div>
     </div>
   </div>
@@ -210,7 +221,7 @@ export default {
       // 应用动态数据
       configData: null, // 配置文件数据
       activeKey: null, // 当前选中的角色/技能/UI key
-      modIndex: 0, // 选择的mod index -1表示未选中
+      modIndex: -1, // 选择的mod index -1表示未选中
     };
   },
 
@@ -298,6 +309,7 @@ export default {
 
     // 选择角色、技能、场景
     setActiveItem(item) {
+      console.log("setActiveItem")
       this.activeKey = item.key;
       console.log("activeKey", item);
       console.log("modList", this.configData[item.key]);
@@ -309,6 +321,7 @@ export default {
 
     // 选中mod
     setModActive(index) {
+      console.log("setModActive")
       this.modIndex = index;
       let modItem = this.activeItemMods[index];
       if (!!modItem) {
@@ -317,6 +330,7 @@ export default {
         // 获取目录下png、jpg文件
         let imgs = files.filter((fileName) => {
           if (!!fileName) {
+            if(fileName.includes("ShadowRamp")) return false;
             let arr = fileName.toString().split(".");
             if (arr[arr.length - 1] === "png" || arr[arr.length - 1] === "jpg") {
               return true;
@@ -338,9 +352,61 @@ export default {
         this.$set(this.configData[this.activeKey], this.modIndex, newModItem);
       }
     },
-
-
     
+    // 應用mod
+    applyMod(isDelete = false) {
+      let modInfo = deepClone(this.activeItemMods[this.modIndex]);
+      // 讀取mod目錄下文件
+      let modsPath = this.configData.modsPath;
+      let mods = this.readDir(modsPath);
+      let repeatModFileName = mods.find((name) =>
+        name.includes(`${modInfo.roleName}_`)
+      );
+      try {
+        if (!!repeatModFileName) {
+          this.fsextra.removeSync(`${modsPath}/${repeatModFileName}`);
+        }
+
+        if (!isDelete) {
+          let modPath = `${modsPath}/${modInfo.roleName}_${modInfo.modName}`;
+          this.fsextra.copySync(modInfo.modPath, modPath);
+          // this.$message({
+          //   message: "應用成功",
+          //   type: "success",
+          // });
+          this.$notify({
+            title: "成功",
+            message: "应用成功",
+            type: "success",
+            position: "top-right",
+          });
+        } else {
+          // this.$message({
+          //   message: "卸载成功",
+          //   type: "success",
+          // });
+          this.$notify({
+            title: "成功",
+            message: "卸载成功",
+            type: "success",
+            position: "top-right",
+          });
+        }
+      } catch (error) {}
+    },
+
+    // 删除mod记录
+    deleteMod(index) {
+      let newModList = this.activeItemMods.filter((item, modIndex) => {
+        return modIndex !== index;
+      });
+      this.$set(this.configData, this.activeKey, newModList);
+      if(newModList.length === 0) this.modIndex = -1
+      else if(this.modIndex >= index) this.modIndex += -1;
+      this.updateConfig();
+    },
+    
+
 
     // 檢查文件是否存在
     checkConfig() {
@@ -368,6 +434,31 @@ export default {
       const files = this.fs.readdirSync(path);
       return files;
     },
+    
+    // 更新config文件
+    updateConfig() {
+      try {
+        // 保存之前删除图片缓存
+        let configData = JSON.parse(JSON.stringify(this.configData));
+        Object.keys(configData).forEach(key => {
+          if(!!this.isArray(configData[key]) && !!configData[key].length) {
+            let roleItemMods = configData[key];
+            roleItemMods.forEach(item => {
+              delete item.imgs;
+            })
+          }
+        })
+
+        // 更新文件
+        this.fs.writeFileSync(this.filePath, JSON.stringify(configData));
+      } catch (error) {
+        console.log("error", error)
+      }
+    },
+
+    isArray(obj) {
+      return typeof obj === "object" && Array.isArray(obj);
+    }
   },
 };
 </script>
@@ -598,6 +689,7 @@ export default {
           border-top-left-radius: 25px;
           border-bottom-left-radius: 25px;
           cursor: pointer;
+          position: relative;
 
           &:hover, &.active {
             background: linear-gradient(to right, rgba(255,255,255,0.2), rgba(255,255,255,0));
@@ -639,13 +731,31 @@ export default {
             text-overflow: ellipsis;
           }
 
+          .deleteMod {
+            position: absolute;
+            right: 0;
+            top: 9px;
+            display: none;
+            z-index: 9;
+          }
+
           &.active {
-            transform: scale(1.1);
-            transform-origin: left;
             background: none;
+            .modIcon, .modName {
+              transform: scale(1.1);
+              transform-origin: left;
+            }
+            .modIcon {
+              -webkit-transform-origin-x: center;
+              transform: scale(1.1) rotate(45deg);
+            }
             .modName {
               margin-left: 5px;
             }
+          }
+
+          &:hover .deleteMod {
+            display: block;
           }
         }
       }
@@ -674,19 +784,46 @@ export default {
         object-fit: contain;
       }
 
+      .modDetailName {
+        position: absolute;
+        top: 0;
+        left: 0;
+        font-size: 20px;
+        color: white;
+        background: black;
+        padding: 5px;
+        z-index: 9;
+      }
+
       .buttons {
-        top: -50px;
+        bottom: 50px;
         width: 100%;
         position: absolute;
         z-index: 99;
         text-align: center;
-        transition: top 0.5s ease-out;
-      }
 
-      &:hover {
-        .buttons {
-          top: 20px;
+        /deep/ {
+          .el-button {
+            width: 240px;
+            line-height: 24px;
+            background-color: #ece5d9;
+            border: none;
+            border-radius: 24px;
+            color: black;
+            font-size: 20px;
+            font-weight: 600;
+            opacity: 0.2;
+          }
+
+          .el-button+.el-button {
+            margin-left: 20px;
+          }
         }
+      }
+      
+
+      &:hover .buttons .el-button {
+        opacity: 1;
       }
 
       /deep/ {
