@@ -413,7 +413,23 @@ export default {
     },
 
     updateConfig() {
-      this.fs.writeFileSync(this.filePath, JSON.stringify(this.configData));
+      try {
+        // 保存之前删除图片缓存
+        let configData = JSON.parse(JSON.stringify(this.configData));
+        Object.keys(configData).forEach(key => {
+          if(!!this.isArray(configData[key]) && !!configData[key].length) {
+            let roleItemMods = configData[key];
+            roleItemMods.forEach(item => {
+              delete item.imgs;
+            })
+          }
+        })
+
+        // 更新文件
+        this.fs.writeFileSync(this.filePath, JSON.stringify(configData));
+      } catch (error) {
+        console.log("error", error)
+      }
     },
 
     // 讀取文件夾內容
@@ -477,6 +493,10 @@ export default {
       this.modIndex += -1;
       this.updateConfig();
     },
+
+    isArray(obj) {
+      return typeof obj === "object" && Array.isArray(obj);
+    }
   },
 };
 </script>
