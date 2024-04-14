@@ -88,12 +88,23 @@
             <div class="modName">{{ mod.modName }}</div>
           </div>
         </div>
+        <div class="noModData" v-if="activeItemMods.length === 0">暂无mod数据</div>
       </div>
 
       <!-- mod展示區域,按鈕放底部 -->
-      <div class="modDetailContent">
+      <div class="modDetailContent" v-if="modIndex >= 0">
         <!-- 滾動播放 -->
-
+        <el-carousel
+          height="100%"
+          v-if="!!activeItemMods[modIndex].imgs && activeItemMods[modIndex].imgs.length"
+        >
+          <el-carousel-item
+            v-for="(item, imgIndex) in activeItemMods[modIndex].imgs"
+            :key="imgIndex"
+          >
+            <img :src="item" />
+          </el-carousel-item>
+        </el-carousel>
         <!-- 按鈕區域 -->
       </div>
     </div>
@@ -561,6 +572,7 @@ export default {
     .modContent {
       width: 300px;
       padding: 0 10px;
+      color: #ece5d8;
 
       .typeName {
         height: 40px;
@@ -574,7 +586,6 @@ export default {
       }
 
       .modItems {
-        color: #ece5d8;
         // padding-top: 30px;
 
         .modItem {
@@ -623,6 +634,9 @@ export default {
 
           .modName {
             opacity: 0.6;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
           }
 
           &.active {
@@ -633,6 +647,60 @@ export default {
               margin-left: 5px;
             }
           }
+        }
+      }
+
+      .noModData {
+        font-size: 28px;
+        text-align: center;
+        margin-top: 30px;
+      }
+    }
+
+    .modDetailContent {
+      flex: 1;
+      position: relative;
+      background-color: rgba(255,255,255,0.2);
+      // border-left: 2px solid #909399;
+
+      .noImg {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .buttons {
+        top: -50px;
+        width: 100%;
+        position: absolute;
+        z-index: 99;
+        text-align: center;
+        transition: top 0.5s ease-out;
+      }
+
+      &:hover {
+        .buttons {
+          top: 20px;
+        }
+      }
+
+      /deep/ {
+        .el-carousel {
+          width: 100%;
+          height: 100%;
+
+          // .el-carousel__item:nth-child(2n) {
+          //   background-color: #99a9bf;
+          // }
+
+          // .el-carousel__item:nth-child(2n + 1) {
+          //   background-color: #d3dce6;
+          // }
         }
       }
     }
