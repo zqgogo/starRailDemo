@@ -22,7 +22,7 @@
         </div>
       </div>
 
-      <!-- 角色/mod選擇區域 -->
+      <!-- 角色/场景/UI 選擇區域 -->
       <div class="chooseContent">
         <!-- 角色欄 底部搜索，顶部筛选，選中時向左壓縮 -->
         <div class="roleTabs">
@@ -61,7 +61,7 @@
           </div>
           <!-- 角色 -->
           <div class="roleItems">
-            <div class="roleItem" v-for="item in roleList" :key="item.key">
+            <div class="roleItem" v-for="item in roleList" :key="item.key" @click="setActiveItem(item)">
               <div class="roleImg" :class="{ fourStar: item.star === 4 }">
                 <img :src="item.head" />
               </div>
@@ -75,13 +75,23 @@
             <el-input v-model="roleSearch" size="small" clearable></el-input>
           </div>
         </div>
+      </div>
 
-        <!-- mod欄 顯示對應mod名稱，需要高亮已選，底部搜索 -->
-        <div class="modItems"></div>
+      <!-- mod欄 顯示對應mod名稱，需要高亮已選，底部搜索 -->
+      <div class="modContent" v-if="!!activeKey">
+        <div class="typeName">{{ activeItem.name }}</div>
+        <div class="modItems">
+          <div class="modItem" v-for="(mod, index) in activeItemMods" :key="index" :class="{active: modIndex === index }" @click="setModActive(index)">
+            <div class="modIcon">
+              <div class="point"></div>
+            </div>
+            <div class="modName">{{ mod.modName }}</div>
+          </div>
+        </div>
       </div>
 
       <!-- mod展示區域,按鈕放底部 -->
-      <div class="modContent">
+      <div class="modDetailContent">
         <!-- 滾動播放 -->
 
         <!-- 按鈕區域 -->
@@ -104,8 +114,14 @@ import { allRoleInfo } from "../utils/roleInfo.js";
 export default {
   name: "MihoyoModManager",
   data() {
+    const fs = require("fs");
+    const fsextra = require("fs-extra");
+
     return {
+      fs: fs,
+      fsextra: fsextra,
       game: "genshin", // 當前遊戲 默認原神
+      filePath: "config.ini",
 
       // 左側欄大分類
       tabList: [
@@ -179,11 +195,16 @@ export default {
           value: "cao",
         },
       ],
+
+      // 应用动态数据
+      configData: null, // 配置文件数据
+      activeKey: null, // 当前选中的角色/技能/UI key
+      modIndex: 0, // 选择的mod index -1表示未选中
     };
   },
 
   computed: {
-    // 显示的角色列表
+    // 显示的角色列表(也可以是场景，技能列表)
     roleList() {
       let roleListOrigin = deepClone(Object.values(allRoleInfo));
       if (!!this.ageSexType) {
@@ -216,10 +237,38 @@ export default {
         };
       });
     },
+
+    // 选择的角色/技能/场景
+    activeItem() {
+      if(!!this.activeKey) {
+        return this.roleList.find(item => {
+          return item.key === this.activeKey;
+        })
+      }
+      return null;
+    },
+
+    // 选择的角色/技能/场景对应的mod列表
+    activeItemMods() {
+      if(!!this.activeKey) {
+        return this.configData[this.activeKey] || [];
+      }
+      return [];
+    },
   },
 
   mounted() {
-    this.getRoleList();
+    // this.getRoleList();
+
+    // 初始化config數據
+    if (!this.checkConfig()) {
+      this.fs.writeFileSync(this.filePath, "");
+    }
+
+    if (!this.configData) {
+      this.configData = this.readConfig();
+    }
+    console.log("configData", this.configData);
   },
 
   methods: {
@@ -234,6 +283,79 @@ export default {
     // 游戏切换
     gameChange() {
       this.game = this.game === "hsr" ? "hsr" : "genshin";
+    },
+
+    // 选择角色、技能、场景
+    setActiveItem(item) {
+      this.activeKey = item.key;
+      console.log("activeKey", item);
+      console.log("modList", this.configData[item.key]);
+      this.modIndex = -1;
+      if(!!this.configData[item.key] && !!this.configData[item.key].length) {
+        this.setModActive(0);
+      }
+    },
+
+    // 选中mod
+    setModActive(index) {
+      this.modIndex = index;
+      let modItem = this.activeItemMods[index];
+      if (!!modItem) {
+        let files = this.readDir(modItem.modPath);
+
+        // 获取目录下png、jpg文件
+        let imgs = files.filter((fileName) => {
+          if (!!fileName) {
+            let arr = fileName.toString().split(".");
+            if (arr[arr.length - 1] === "png" || arr[arr.length - 1] === "jpg") {
+              return true;
+            }
+          }
+          return false;
+        });
+        // 将上述获取的文件转换base64并添加到configData中
+        let newModItem = {
+          ...modItem,
+          imgs: imgs.map((i) => {
+            let imgPath = `${modItem.modPath}/${i}`;
+            let data = this.fs.readFileSync(imgPath);
+            return `data:image/png;base64,${new Buffer(data, "binary").toString(
+              "base64"
+            )}`;
+          }),
+        }
+        this.$set(this.configData[this.activeKey], this.modIndex, newModItem);
+      }
+    },
+
+
+    
+
+    // 檢查文件是否存在
+    checkConfig() {
+      try {
+        this.fs.accessSync(this.filePath, this.fs.constants.F_OK);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    },
+
+    // 读取配置文件内容
+    readConfig() {
+      // 同步读取配置文件
+      const data = this.fs.readFileSync(this.filePath, "utf-8");
+      try {
+        return JSON.parse(data) || {};
+      } catch (error) {
+        return data || {};
+      }
+    },
+
+    // 讀取文件夾內容
+    readDir(path) {
+      const files = this.fs.readdirSync(path);
+      return files;
     },
   },
 };
@@ -307,9 +429,10 @@ export default {
     }
 
     .chooseContent {
-      width: 458px;
-      height: 100%;
+      width: 475px;
+      height: calc(100% - 1px);
       overflow: hidden;
+      padding-top: 1px;
 
       .roleTabs {
         height: 100%;
@@ -381,6 +504,12 @@ export default {
             border-radius: 5px;
             overflow: hidden;
             cursor: pointer;
+            border: 2px solid;
+
+            &:hover {    
+              transform: scale(1.1);
+              border-color: white;
+            }
 
             .roleImg {
               width: 100%;
@@ -423,6 +552,85 @@ export default {
               font-size: 16px;
               border-color: transparent;
               background-color: rgba($color: #ece5d9, $alpha: 0.5);
+            }
+          }
+        }
+      }
+    }
+
+    .modContent {
+      width: 300px;
+      padding: 0 10px;
+
+      .typeName {
+        height: 40px;
+        line-height: 40px;
+        margin-top: 10px;
+        border-radius: 20px;
+        font-size: 30px;
+        text-align: center;
+        background-color: rgba(255, 255, 255, 0.5);
+        color: white;
+      }
+
+      .modItems {
+        color: #ece5d8;
+        // padding-top: 30px;
+
+        .modItem {
+          display: flex;
+          height: 50px;
+          margin: 20px 10px;
+          font-size: 28px;
+          font-weight: 600;
+          align-items: center;
+          border-top-left-radius: 25px;
+          border-bottom-left-radius: 25px;
+          cursor: pointer;
+
+          &:hover, &.active {
+            background: linear-gradient(to right, rgba(255,255,255,0.2), rgba(255,255,255,0));
+            .modIcon {
+              border-color: rgba(236, 229, 216, 0.6);
+
+              .point {
+                opacity: 1;
+              }
+            }
+
+            .modName {
+              opacity: 1;
+            }
+          }
+
+          .modIcon {
+            width: 13px;
+            height: 13px;
+            margin-left: 15px;
+            margin-right: 8px;
+            transform: rotate(45deg);
+            border: 1.5px solid rgba(236, 229, 216, 0);;
+
+            .point {
+              width: 10px;
+              height: 10px;
+              background-color: #ece5d8;
+              opacity: 0.6;
+              margin: 1.5px;
+            }
+            
+          }
+
+          .modName {
+            opacity: 0.6;
+          }
+
+          &.active {
+            transform: scale(1.1);
+            transform-origin: left;
+            background: none;
+            .modName {
+              margin-left: 5px;
             }
           }
         }
