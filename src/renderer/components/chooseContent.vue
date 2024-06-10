@@ -4,20 +4,25 @@
         <!-- 角色欄 底部搜索，顶部筛选，選中時向左壓縮 -->
         <div class="roleTabs">
             <!-- 篩選欄 -->
-            <div class="filterContent" v-if="type === 'role'">
-                <el-select v-model="ageSexType" size="small" placeholder="性别" clearable :popper-append-to-body="false">
-                    <el-option v-for="item in ageSexTypeList" :key="item.value" :label="item.label" :value="item.value">
-                    </el-option>
-                </el-select>
-                <el-select v-model="attrType" size="small" placeholder="属性" clearable :popper-append-to-body="false">
-                    <el-option v-for="item in attrTypeList" :key="item.value" :label="item.label" :value="item.value">
-                    </el-option>
-                </el-select>
+            <div class="filterContent">
+                <template v-if="type === 'role'">
+                    <el-select v-model="ageSexType" size="small" placeholder="性别" clearable :popper-append-to-body="false">
+                        <el-option v-for="item in ageSexTypeList" :key="item.value" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                    <el-select v-model="attrType" size="small" placeholder="属性" clearable :popper-append-to-body="false">
+                        <el-option v-for="item in attrTypeList" :key="item.value" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </template>
+                <template v-else>
+                    <el-button size="small" @click="addType">添加分类</el-button>
+                </template>
             </div>
             <!-- 角色 -->
             <div class="roleItems">
                 <div class="roleItem" v-for="item in dataList" :key="item.key" @click="setActiveItem(item)">
-                    <div class="roleImg" :class="{ fourStar: item.star === 4 }">
+                    <div class="roleImg" :class="{ fourStar: item.star === 4, noStar: !item.star }">
                         <img :src="item.head" />
                     </div>
                     <div class="roleName">{{ item.name }}</div>
@@ -136,13 +141,11 @@ export default {
             console.log("setActiveItem");
             this.activeKey = item.key;
             this.$emit("change", this.activeKey);
-            // console.log("activeKey", item);
-            // console.log("modList", this.configData[item.key]);
-            // this.modIndex = -1;
-            // if (!!this.configData[item.key] && !!this.configData[item.key].length) {
-            //     this.setModActive(0);
-            // }
         },
+
+        addType() {
+            this.$emit("addType")
+        }
     }
 }
 </script>
@@ -157,13 +160,15 @@ export default {
     .roleTabs {
         height: 100%;
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
 
         .filterContent {
             display: flex;
             margin: 10px 0;
 
             /deep/ {
-                .el-select {
+                .el-select, .el-button {
                     margin: 0 10px;
 
                     .el-input {
@@ -206,8 +211,9 @@ export default {
             flex-wrap: wrap;
             align-content: flex-start;
             padding: 0 5px;
-            height: calc(100% - 52px - 52px);
+            // height: calc(100% - 52px - 52px);
             overflow-y: auto;
+            flex: 1;
 
             // 滚动条
             &::-webkit-scrollbar {
@@ -244,6 +250,10 @@ export default {
 
                     &.fourStar {
                         background: linear-gradient(180deg, #565382 0%, #896ba7 100%);
+                    }
+
+                    &.noStar {
+                        background: linear-gradient(180deg, #0645ad 0%, #00b6ff 100%);
                     }
                 }
 

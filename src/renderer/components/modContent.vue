@@ -30,14 +30,20 @@ export default {
             type: Number,
             default: -1,
         },
+        list: {
+            type: Array,
+            default: () => {
+                return []
+            }
+        },
         activeItem: {
             type: Object,
             default: null,
         },
-        configData: {
-            type: Object,
-            default: null,
-        },
+        // configData: {
+        //     type: Object,
+        //     default: null,
+        // },
     },
     data() {
         return {
@@ -46,10 +52,7 @@ export default {
     computed: {
         // 选择的角色/技能/场景对应的mod列表
         activeItemMods() {
-            if (!!this.activeItem) {
-                return this.configData[this.activeItem.key] || [];
-            }
-            return [];
+            return this.list || [];
         }
     },
     methods: {

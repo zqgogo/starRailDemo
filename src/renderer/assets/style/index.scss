@@ -1,0 +1,10 @@
+.el-button {
+    border-radius: 16px;
+    background-color: #ece5d9;
+    border-color: transparent;
+
+    &,
+    &::placeholder {
+        color: #575357;
+    }
+}
