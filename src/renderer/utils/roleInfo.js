@@ -1,20 +1,53 @@
-export let allRoleInfo = {
-  Jean: { key: "Jean", name: "琴", attr: "feng", sexType: "woman", star: 5 },
-  Lisa: { key: "Lisa", name: "丽莎", attr: "lei", sexType: "woman", star: 4 },
+let vision = {
+  feng: require("../assets/vision/feng.png"), // 风
+  huo: require("../assets/vision/huo.png"), // 火
+  lei: require("../assets/vision/lei.png"), // 雷
+  shui: require("../assets/vision/shui.png"), // 水
+  bing: require("../assets/vision/bing.png"), // 冰
+  yan: require("../assets/vision/yan.png"), // 岩
+  cao: require("../assets/vision/cao.png"), // 草
+};
+
+let roleInfo = {
+  Jean: { 
+    key: "Jean", 
+    name: "琴", 
+    attr: "feng", 
+    sexType: "woman", 
+    star: 5,
+    sort: 10,
+  },
+  Lisa: { 
+    key: "Lisa", 
+    name: "丽莎", 
+    attr: "lei", 
+    sexType: "woman",
+    star: 4,
+    sort: 40,
+  },
   Rosaria: {
     key: "Rosaria",
     name: "罗莎莉亚",
     attr: "bing",
     sexType: "woman",
     star: 4,
+    sort: 40,
   },
-  Eula: { key: "Eula", name: "优菈", attr: "bing", sexType: "woman", star: 5 },
+  Eula: { 
+    key: "Eula", 
+    name: "优菈", 
+    attr: "bing", 
+    sexType: "woman", 
+    star: 5,
+    sort: 10,
+  },
   Ningguang: {
     key: "Ningguang",
     name: "凝光",
     attr: "yan",
     sexType: "woman",
     star: 4,
+    sort: 40,
   },
   Beidou: {
     key: "Beidou",
@@ -22,6 +55,7 @@ export let allRoleInfo = {
     attr: "lei",
     sexType: "woman",
     star: 4,
+    sort: 40,
   },
   Shenhe: {
     key: "Shenhe",
@@ -29,6 +63,7 @@ export let allRoleInfo = {
     attr: "bing",
     sexType: "woman",
     star: 5,
+    sort: 10,
   },
   Yelan: {
     key: "Yelan",
@@ -36,6 +71,7 @@ export let allRoleInfo = {
     attr: "shui",
     sexType: "woman",
     star: 5,
+    sort: 10,
   },
   Xianyun: {
     key: "Xianyun",
@@ -43,6 +79,7 @@ export let allRoleInfo = {
     attr: "feng",
     sexType: "woman",
     star: 5,
+    sort: 10,
   },
   RaidenEi: {
     key: "RaidenEi",
@@ -50,6 +87,7 @@ export let allRoleInfo = {
     attr: "lei",
     sexType: "woman",
     star: 5,
+    sort: 10,
   },
   Sara: {
     key: "Sara",
@@ -57,6 +95,7 @@ export let allRoleInfo = {
     attr: "lei",
     sexType: "woman",
     star: 4,
+    sort: 40,
   },
   Miko: {
     key: "Miko",
@@ -64,6 +103,7 @@ export let allRoleInfo = {
     attr: "lei",
     sexType: "woman",
     star: 5,
+    sort: 10,
   },
   Candace: {
     key: "Candace",
@@ -71,6 +111,7 @@ export let allRoleInfo = {
     attr: "shui",
     sexType: "woman",
     star: 4,
+    sort: 40,
   },
   Dehya: {
     key: "Dehya",
@@ -78,6 +119,7 @@ export let allRoleInfo = {
     attr: "huo",
     sexType: "woman",
     star: 5,
+    sort: 10,
   },
   Navia: {
     key: "Navia",
@@ -85,14 +127,23 @@ export let allRoleInfo = {
     attr: "yan",
     sexType: "woman",
     star: 5,
+    sort: 10,
   },
-  Amber: { key: "Amber", name: "安柏", attr: "huo", sexType: "girl", star: 4 },
+  Amber: { 
+    key: "Amber", 
+    name: "安柏", 
+    attr: "huo", 
+    sexType: "girl",
+    star: 4,
+    sort: 50,
+  },
   Barbara: {
     key: "Barbara",
     name: "芭芭拉",
     attr: "shui",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
   Noelle: {
     key: "Noelle",
@@ -100,6 +151,7 @@ export let allRoleInfo = {
     attr: "yan",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
   Fischl: {
     key: "Fischl",
@@ -107,6 +159,7 @@ export let allRoleInfo = {
     attr: "lei",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
   Sucrose: {
     key: "Sucrose",
@@ -114,23 +167,47 @@ export let allRoleInfo = {
     attr: "feng",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
-  Mona: { key: "Mona", name: "莫娜", attr: "shui", sexType: "girl", star: 5 },
+  Mona: { 
+    key: "Mona", 
+    name: "莫娜", 
+    attr: "shui", 
+    sexType: "girl", 
+    star: 5,
+    sort: 20,
+  },
   Keqing: {
     key: "Keqing",
     name: "刻晴",
     attr: "lei",
     sexType: "girl",
     star: 5,
+    sort: 20,
   },
-  Ganyu: { key: "Ganyu", name: "甘雨", attr: "bing", sexType: "girl", star: 5 },
-  Hutao: { key: "Hutao", name: "胡桃", attr: "huo", sexType: "girl", star: 5 },
+  Ganyu: { 
+    key: "Ganyu", 
+    name: "甘雨", 
+    attr: "bing", 
+    sexType: "girl", 
+    star: 5,
+    sort: 20,
+  },
+  Hutao: { 
+    key: "Hutao", 
+    name: "胡桃", 
+    attr: "huo", 
+    sexType: "girl", 
+    star: 5,
+    sort: 20,
+  },
   Xiangling: {
     key: "Xiangling",
     name: "香菱",
     attr: "huo",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
   Xinyan: {
     key: "Xinyan",
@@ -138,6 +215,7 @@ export let allRoleInfo = {
     attr: "huo",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
   Yanfei: {
     key: "Yanfei",
@@ -145,6 +223,7 @@ export let allRoleInfo = {
     attr: "huo",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
   Yunjin: {
     key: "Yunjin",
@@ -152,6 +231,7 @@ export let allRoleInfo = {
     attr: "yan",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
   Ayaka: {
     key: "Ayaka",
@@ -159,6 +239,7 @@ export let allRoleInfo = {
     attr: "bing",
     sexType: "girl",
     star: 5,
+    sort: 20,
   },
   Yoimiya: {
     key: "Yoimiya",
@@ -166,6 +247,7 @@ export let allRoleInfo = {
     attr: "huo",
     sexType: "girl",
     star: 5,
+    sort: 20,
   },
   Kokomi: {
     key: "Kokomi",
@@ -173,6 +255,7 @@ export let allRoleInfo = {
     attr: "shui",
     sexType: "girl",
     star: 5,
+    sort: 20,
   },
   Shinobu: {
     key: "Shinobu",
@@ -180,6 +263,7 @@ export let allRoleInfo = {
     attr: "lei",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
   Kirara: {
     key: "Kirara",
@@ -187,6 +271,7 @@ export let allRoleInfo = {
     attr: "cao",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
   Chiori: {
     key: "Chiori",
@@ -194,6 +279,7 @@ export let allRoleInfo = {
     attr: "yan",
     sexType: "girl",
     star: 5,
+    sort: 20,
   },
   Collei: {
     key: "Collei",
@@ -201,14 +287,23 @@ export let allRoleInfo = {
     attr: "cao",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
-  Nilou: { key: "Nilou", name: "妮露", attr: "shui", sexType: "girl", star: 5 },
+  Nilou: { 
+    key: "Nilou", 
+    name: "妮露", 
+    attr: "shui", 
+    sexType: "girl", 
+    star: 5,
+    sort: 20,
+  },
   Layla: {
     key: "Layla",
     name: "莱依拉",
     attr: "bing",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
   Faruzan: {
     key: "Faruzan",
@@ -216,6 +311,7 @@ export let allRoleInfo = {
     attr: "feng",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
   Lynette: {
     key: "Lynette",
@@ -223,6 +319,7 @@ export let allRoleInfo = {
     attr: "feng",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
   Furina: {
     key: "Furina",
@@ -230,6 +327,7 @@ export let allRoleInfo = {
     attr: "shui",
     sexType: "girl",
     star: 5,
+    sort: 20,
   },
   Charlotte: {
     key: "Charlotte",
@@ -237,6 +335,7 @@ export let allRoleInfo = {
     attr: "bing",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
   Chevreuse: {
     key: "Chevreuse",
@@ -244,45 +343,117 @@ export let allRoleInfo = {
     attr: "huo",
     sexType: "girl",
     star: 4,
+    sort: 50,
   },
-  Aloy: { key: "Aloy", name: "埃洛伊", attr: "bing", sexType: "girl", star: 5 },
-  Lumine: { key: "Lumine", name: "莹", sexType: "girl", star: 5 },
-  Klee: { key: "Klee", name: "可莉", attr: "huo", sexType: "loli", star: 5 },
+  Aloy: { 
+    key: "Aloy", 
+    name: "埃洛伊", 
+    attr: "bing", 
+    sexType: "girl", 
+    star: 5,
+    sort: 20,
+  },
+  Lumine: { 
+    key: "Lumine", 
+    name: "莹", 
+    sexType: "girl", 
+    star: 5,
+    sort: 20,
+  },
+  Klee: { 
+    key: "Klee", 
+    name: "可莉", 
+    attr: "huo", 
+    sexType: "loli", 
+    star: 5,
+    sort: 30,
+  },
   Diona: {
     key: "Diona",
     name: "迪奥娜",
     attr: "bing",
     sexType: "loli",
     star: 4,
+    sort: 60
   },
-  Qiqi: { key: "Qiqi", name: "七七", attr: "bing", sexType: "loli", star: 5 },
+  Qiqi: { 
+    key: "Qiqi",
+    name: "七七",
+    attr: "bing",
+    sexType: "loli",
+    star: 5,
+    sort: 30,
+  },
   Yaoyao: {
     key: "Yaoyao",
     name: "瑶瑶",
     attr: "cao",
     sexType: "loli",
     star: 4,
+    sort: 60
   },
-  Sayu: { key: "Sayu", name: "早柚", attr: "feng", sexType: "loli", star: 4 },
-  Dori: { key: "Dori", name: "多莉", attr: "lei", sexType: "loli", star: 4 },
+  Sayu: { 
+    key: "Sayu",
+    name: "早柚",
+    attr: "feng",
+    sexType: "loli",
+    star: 4,
+    sort: 60
+  },
+  Dori: { 
+    key: "Dori",
+    name: "多莉",
+    attr: "lei",
+    sexType: "loli",
+    star: 4,
+    sort: 60
+  },
   Nahida: {
     key: "Nahida",
     name: "纳西妲",
     attr: "cao",
     sexType: "loli",
     star: 5,
+    sort: 30,
   },
-  // Paimon: { key: "Paimon", name: "派蒙", sexType: "loli", star: 5 },
-  Aether: { key: "Aether", name: "空", sexType: "man", star: 5 },
-  Mika: { key: "Mika", name: "米卡", attr: "bing", sexType: "man", star: 4 },
-  Razor: { key: "Razor", name: "雷泽", attr: "lei", sexType: "man", star: 4 },
-  Venti: { key: "Venti", name: "温蒂", attr: "feng", sexType: "man", star: 5 },
+  Aether: { 
+    key: "Aether",
+    name: "空",
+    sexType: "man",
+    star: 5,
+    sort: 70,
+  },
+  Mika: { 
+    key: "Mika",
+    name: "米卡",
+    attr: "bing",
+    sexType: "man",
+    star: 4,
+    sort: 80,
+  },
+  Razor: { 
+    key: "Razor",
+    name: "雷泽",
+    attr: "lei",
+    sexType: "man",
+    star: 4,
+    sort: 80,
+  },
+  Venti: { 
+    key: "Venti",
+    name: "温蒂",
+    attr: "feng",
+    sexType: "man",
+    star: 5,
+    sort: 70,
+  },
   Bennett: {
     key: "Bennett",
     name: "班尼特",
     attr: "huo",
     sexType: "man",
     star: 4,
+    sort: 80,
   },
   Albedo: {
     key: "Albedo",
@@ -290,15 +461,31 @@ export let allRoleInfo = {
     attr: "yan",
     sexType: "man",
     star: 5,
+    sort: 70,
   },
-  Gaming: { key: "Gaming", name: "嘉明", attr: "huo", sexType: "man", star: 4 },
-  Xiao: { key: "Xiao", name: "魈", attr: "feng", sexType: "man", star: 5 },
+  Gaming: {
+    key: "Gaming",
+    name: "嘉明",
+    attr: "huo",
+    sexType: "man",
+    star: 4,
+    sort: 80,
+  },
+  Xiao: {
+    key: "Xiao",
+    name: "魈",
+    attr: "feng",
+    sexType: "man",
+    star: 5,
+    sort: 70,
+  },
   Xingqiu: {
     key: "Xingqiu",
     name: "行秋",
     attr: "shui",
     sexType: "man",
     star: 4,
+    sort: 80,
   },
   Chongyun: {
     key: "Chongyun",
@@ -306,6 +493,7 @@ export let allRoleInfo = {
     attr: "bing",
     sexType: "man",
     star: 4,
+    sort: 80,
   },
   Kazuha: {
     key: "Kazuha",
@@ -313,14 +501,23 @@ export let allRoleInfo = {
     attr: "feng",
     sexType: "man",
     star: 5,
+    sort: 70,
   },
-  Gorou: { key: "Gorou", name: "五郎", attr: "yan", sexType: "man", star: 4 },
+  Gorou: {
+    key: "Gorou",
+    name: "五郎",
+    attr: "yan",
+    sexType: "man",
+    star: 4,
+    sort: 80,
+  },
   Heizou: {
     key: "Heizou",
     name: "鹿野院平藏",
     attr: "feng",
     sexType: "man",
     star: 4,
+    sort: 80,
   },
   Tighnari: {
     key: "Tighnari",
@@ -328,22 +525,39 @@ export let allRoleInfo = {
     attr: "cao",
     sexType: "man",
     star: 5,
+    sort: 70,
   },
-  Cyno: { key: "Cyno", name: "赛诺", attr: "lei", sexType: "man", star: 5 },
+  Cyno: {
+    key: "Cyno",
+    name: "赛诺",
+    attr: "lei",
+    sexType: "man",
+    star: 5,
+    sort: 70,
+  },
   Wanderer: {
     key: "Wanderer",
     name: "流浪者",
     attr: "feng",
     sexType: "man",
     star: 5,
+    sort: 70,
   },
-  Lyney: { key: "Lyney", name: "林尼", attr: "huo", sexType: "man", star: 5 },
+  Lyney: {
+    key: "Lyney",
+    name: "林尼",
+    attr: "huo",
+    sexType: "man",
+    star: 5,
+    sort: 70,
+  },
   Freminet: {
     key: "Freminet",
     name: "菲米尼",
     attr: "bing",
     sexType: "man",
     star: 4,
+    sort: 80,
   },
   Zhongli: {
     key: "Zhongli",
@@ -351,18 +565,55 @@ export let allRoleInfo = {
     attr: "yan",
     sexType: "man",
     star: 5,
+    sort: 70,
   },
-  Baizhu: { key: "Baizhu", name: "白术", attr: "cao", sexType: "man", star: 5 },
-  Kaeya: { key: "Kaeya", name: "凯亚", attr: "bing", sexType: "man", star: 4 },
-  Diluc: { key: "Diluc", name: "迪卢克", attr: "huo", sexType: "man", star: 5 },
-  Thoma: { key: "Thoma", name: "托马", attr: "huo", sexType: "man", star: 4 },
-  Itto: { key: "Itto", name: "荒泷一斗", attr: "yan", sexType: "man", star: 5 },
+  Baizhu: {
+    key: "Baizhu",
+    name: "白术",
+    attr: "cao",
+    sexType: "man",
+    star: 5,
+    sort: 70,
+  },
+  Kaeya: {
+    key: "Kaeya",
+    name: "凯亚",
+    attr: "bing",
+    sexType: "man",
+    star: 4,
+    sort: 80,
+  },
+  Diluc: {
+    key: "Diluc",
+    name: "迪卢克",
+    attr: "huo",
+    sexType: "man",
+    star: 5,
+    sort: 70,
+  },
+  Thoma: {
+    key: "Thoma",
+    name: "托马",
+    attr: "huo",
+    sexType: "man",
+    star: 4,
+    sort: 80,
+  },
+  Itto: {
+    key: "Itto",
+    name: "荒泷一斗",
+    attr: "yan",
+    sexType: "man",
+    star: 5,
+    sort: 70,
+  },
   Ayato: {
     key: "Ayato",
     name: "神里绫人",
     attr: "shui",
     sexType: "man",
     star: 5,
+    sort: 70,
   },
   Alhaitham: {
     key: "Alhaitham",
@@ -370,14 +621,23 @@ export let allRoleInfo = {
     attr: "cao",
     sexType: "man",
     star: 5,
+    sort: 70,
   },
-  Kaveh: { key: "Kaveh", name: "卡维", attr: "cao", sexType: "man", star: 4 },
+  Kaveh: {
+    key: "Kaveh",
+    name: "卡维",
+    attr: "cao",
+    sexType: "man",
+    star: 4,
+    sort: 80,
+  },
   Tartaglia: {
     key: "Tartaglia",
     name: "达达利亚",
     attr: "shui",
     sexType: "man",
     star: 5,
+    sort: 70,
   },
   Neuvillette: {
     key: "Neuvillette",
@@ -385,6 +645,7 @@ export let allRoleInfo = {
     attr: "shui",
     sexType: "man",
     star: 5,
+    sort: 70,
   },
   Wriothesley: {
     key: "Wriothesley",
@@ -392,5 +653,64 @@ export let allRoleInfo = {
     attr: "bing",
     sexType: "man",
     star: 5,
+    sort: 70,
   },
+  Arlecchino: {
+    key: "Arlecchino",
+    name: "阿蕾奇诺",
+    attr: "huo",
+    sexType: "woman",
+    star: 5,
+    sort: 10,
+  },
+  Clorinde: {
+    key: "Clorinde",
+    name: "克洛琳德",
+    attr: "lei",
+    sexType: "woman",
+    star: 5,
+    sort: 10,
+    FirstAppearance: "4.7.1",
+  },
+  Sethos: {
+    key: "Sethos",
+    name: "赛索斯",
+    attr: "lei",
+    sexType: "man",
+    star: 4,
+    sort: 70,
+    FirstAppearance: "4.7.1",
+  },
+  Sigewinne: {
+    key: "Sigewinne",
+    name: "希格雯",
+    attr: "shui",
+    sexType: "loli",
+    star: 5,
+    sort: 30,
+    FirstAppearance: "4.7.2",
+  },
+  Emilie: {
+    key: "Emilie",
+    name: "艾梅莉埃",
+    attr: "cao",
+    sexType: "girl",
+    star: 5,
+    sort: 20,
+    FirstAppearance: "4.8.1",
+  }
 };
+
+function setRoleInfo() {
+  let roleKeys = Object.keys(roleInfo);
+  return roleKeys.map(key => {
+    let roleItem = roleInfo[key]
+    return {
+      ...roleItem,
+      vision: vision[roleItem.attr],
+      head: require(`../assets/head/${key}.png`),
+    }
+  })
+}
+
+export let allRoleInfo = setRoleInfo();

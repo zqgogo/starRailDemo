@@ -29,8 +29,8 @@ function createWindow() {
     icon: "./appIcon.png",
   });
 
-  // 启动时为全屏
-  mainWindow.setFullScreen(true)
+  // 启动时为最大化
+  mainWindow.maximize()
 
   mainWindow.loadURL(winURL);
 
