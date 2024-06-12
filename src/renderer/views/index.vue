@@ -7,7 +7,11 @@
           <img src="../assets/appIcon.png" />
         </div>
         <div class="tabIcon" v-for="(item, index) in tabList" :key="item.value">
-          <div class="tabIconItem" :class="{ active: index === tabIndex }" @click="changeTab(index)">
+          <div
+            class="tabIconItem"
+            :class="{ active: index === tabIndex }"
+            @click="changeTab(index)"
+          >
             {{ item.label }}
           </div>
         </div>
@@ -20,24 +24,53 @@
 
       <template v-if="game === 'genshin'">
         <!-- 类型 选择区域 -->
-        <choose-content :list="chooseContentList" @change="setActiveItem" :type="tabListForGenshin[tabIndex].value"
-          @addType="addOtherType"></choose-content>
+        <choose-content
+          :list="chooseContentList"
+          @change="setActiveItem"
+          :type="tabListForGenshin[tabIndex].value"
+          @addType="addOtherType"
+        ></choose-content>
         <!-- 具体mod选择区域 -->
-        <mod-content v-if="!!activeKey" v-model="modIndex" :activeItem="activeItem" :list="activeItemMods"
-          @change="setModActive" @delete="deleteMod"></mod-content>
+        <mod-content
+          v-if="!!activeKey"
+          v-model="modIndex"
+          :activeItem="activeItem"
+          :list="activeItemMods"
+          @change="setModActive"
+          @delete="deleteMod"
+        ></mod-content>
         <!-- mod展示區域,按鈕放底部 -->
-        <mod-detail-content v-if="modIndex >= 0" :mod="modItem" @applyMod="applyMod"></mod-detail-content>
+        <mod-detail-content
+          v-if="modIndex >= 0"
+          :mod="modItem"
+          @applyMod="applyMod"
+        ></mod-detail-content>
       </template>
     </div>
 
-    <el-drawer title="新增mod" :visible.sync="dialogVisible" direction="rtl" :show-close="false"
-      :close-on-press-escape="false" :wrapperClosable="false">
+    <el-drawer
+      title="新增mod"
+      :visible.sync="dialogVisible"
+      direction="rtl"
+      :show-close="false"
+      :close-on-press-escape="false"
+      :wrapperClosable="false"
+    >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <!-- 添加角色mod -->
         <el-form-item label="角色" prop="roleKey">
-          <el-select v-model="form.roleKey" placeholder="请选择" filterable @change="roleChange()">
-            <el-option :label="roleItem.name" :value="roleItem.key" v-for="roleItem in chooseContentList"
-              :key="roleItem.key"></el-option>
+          <el-select
+            v-model="form.roleKey"
+            placeholder="请选择"
+            filterable
+            @change="roleChange()"
+          >
+            <el-option
+              :label="roleItem.name"
+              :value="roleItem.key"
+              v-for="roleItem in chooseContentList"
+              :key="roleItem.key"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="mod名称" prop="modName">
@@ -53,8 +86,14 @@
       </span>
     </el-drawer>
 
-    <el-drawer title="新增分类" :visible.sync="showAddType" direction="rtl" :show-close="false" :close-on-press-escape="false"
-      :wrapperClosable="false">
+    <el-drawer
+      title="新增分类"
+      :visible.sync="showAddType"
+      direction="rtl"
+      :show-close="false"
+      :close-on-press-escape="false"
+      :wrapperClosable="false"
+    >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="分类名称" prop="typeName">
           <el-input v-model="form.typeName"></el-input>
@@ -62,20 +101,49 @@
         <el-form-item label="分类图标" prop="typeIcon">
           <el-input v-model="form.typeIcon"></el-input>
         </el-form-item>
-
       </el-form>
       <span class="drawFooter">
         <el-button @click="showAddType = false">取 消</el-button>
         <el-button type="primary" @click="addType()">确 定</el-button>
       </span>
     </el-drawer>
+
+    <el-dialog
+      title="初始化"
+      :visible.sync="showChoose3DmigotoPath"
+      width="500px"
+      height="500px"
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <el-input
+        :value="configData ? configData.modsPath : '' || ''"
+        disabled
+        placeholder="请选择3Dmigoto路径"
+      >
+        <el-button
+          slot="append"
+          icon="el-icon-plus"
+          @click="chooseGamePath"
+        ></el-button>
+      </el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button
+          type="primary"
+          :disabled="!configData || !configData.modsPath"
+          @click="showChoose3DmigotoPath = false"
+          >确 定</el-button
+        >
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { deepClone } from "../utils/index.js";
 import { allRoleInfo } from "../utils/roleInfo.js";
-import { bgImg } from '../utils/img.js'
+import { bgImg } from "../utils/img.js";
 
 import chooseContent from "../components/chooseContent.vue";
 import modContent from "../components/modContent.vue";
@@ -88,9 +156,15 @@ export default {
     const fs = require("fs");
     const fsextra = require("fs-extra");
 
+    const electron = require("vue-electron");
+
     return {
       fs: fs,
       fsextra: fsextra,
+      electron: electron,
+
+      showChoose3DmigotoPath: false, // 是否第一次使用该管理器，需要选择游戏路径
+      gamePath: "", // 游戏目录
 
       game: "", // 當前遊戲 默認原神
       pageLoading: false, // 页面loading
@@ -127,10 +201,8 @@ export default {
       configData: null, // 配置文件数据
       modIndex: -1, // 选择的mod index -1表示未选中
 
-
       // 原神参数
       allRoleInfo: allRoleInfo, // 角色数据
-
 
       // 弹窗参数
       dialogVisible: false, // 添加mod弹窗
@@ -151,9 +223,9 @@ export default {
   computed: {
     // 动态显示左侧tab栏
     tabList() {
-      if (this.game === 'genshin') {
+      if (this.game === "genshin") {
         return this.tabListForGenshin;
-      } else if (this.game === 'starrail') {
+      } else if (this.game === "starrail") {
         return this.tabListForStarrail;
       }
       return [];
@@ -161,15 +233,16 @@ export default {
 
     // 动态显示选择栏
     chooseContentList() {
-      if (this.game === 'genshin') {
+      if (this.game === "genshin") {
         let key = this.tabList[this.tabIndex].value;
         switch (key) {
-          case 'role': return this.allRoleInfo || [];
+          case "role":
+            return this.allRoleInfo || [];
           default:
             let list = this.configData[key] || {};
-            console.log("list", list)
+            console.log("list", list);
             return Object.values(list).sort((a, b) => {
-              return a.sort - b.sort
+              return a.sort - b.sort;
             });
         }
       }
@@ -181,19 +254,19 @@ export default {
         let item = this.chooseContentList.find((item) => {
           return item.key === this.activeKey;
         });
-        console.log("activeItem", item)
-        return item
+        console.log("activeItem", item);
+        return item;
       }
       return null;
     },
 
     // 选中角色、类型下的mod列表
     activeItemMods() {
-      console.log("activeItem", this.activeItem)
+      console.log("activeItem", this.activeItem);
       if (!!this.activeItem && !!this.activeItem.key) {
-        if(this.tabIndex === 0) {
+        if (this.tabIndex === 0) {
           let activeItemMods = this.configData[this.activeItem.key] || [];
-          return activeItemMods
+          return activeItemMods;
         } else {
           return this.activeItem.mods || [];
         }
@@ -202,9 +275,13 @@ export default {
     },
 
     modItem() {
-      if (!!this.activeItemMods && this.activeItemMods.length > 0 && this.modIndex >= 0) {
+      if (
+        !!this.activeItemMods &&
+        this.activeItemMods.length > 0 &&
+        this.modIndex >= 0
+      ) {
         let modItem = this.activeItemMods[this.modIndex] || null;
-        return modItem
+        return modItem;
       }
       return null;
     },
@@ -246,6 +323,10 @@ export default {
 
     // 初始化获取配置
     init() {
+      // 创建目录
+      if (!this.fs.existsSync("./config")) {
+        this.fs.mkdirSync("./config");
+      }
       // 初始化config數據
       if (!this.checkConfig()) {
         this.fs.writeFileSync(this.filePath, "");
@@ -253,21 +334,43 @@ export default {
 
       this.configData = this.readConfig();
       console.log("configData", this.configData);
+
+      // 选择3Dmigoto路径
+      if (!this.configData.modsPath) {
+        this.showChoose3DmigotoPath = true;
+      }
+    },
+
+    // 选择游戏路径
+    chooseGamePath() {
+      console.log(this.$electron);
+      this.$electron.remote.dialog.showOpenDialog(
+        {
+          properties: ["openDirectory"],
+        },
+        ([modsPath]) => {
+          console.log(modsPath);
+          this.configData = { modsPath: modsPath.replace(/\\/g, "/") };
+          this.updateConfig();
+        }
+      );
     },
 
     // 设置对应游戏背景
     getBgImg() {
-      return `background-image: url(${bgImg[this.game]})`
+      return `background-image: url(${bgImg[this.game]})`;
     },
 
     // tab切换
     changeTab(index) {
+      this.activeKey = null;
+      this.modIndex = -1;
       this.tabIndex = index;
     },
 
     // 选择角色、技能、场景
     setActiveItem(key) {
-      console.log(key)
+      console.log(key);
       this.activeKey = key;
       this.modIndex = -1;
 
@@ -314,20 +417,23 @@ export default {
             )}`;
           }),
         };
-        if(!!this.activeItem.type) {
-          this.$set(this.configData[this.activeItem.type][this.activeKey].mods, this.modIndex, newModItem);
+        if (!!this.activeItem.type) {
+          this.$set(
+            this.configData[this.activeItem.type][this.activeKey].mods,
+            this.modIndex,
+            newModItem
+          );
         } else {
           this.$set(this.configData[this.activeKey], this.modIndex, newModItem);
         }
       }
     },
 
-
-
-
     // 弹窗中选择角色、类型
     roleChange() {
-      let roleItem = this.chooseContentList.find((i) => i.key === this.form.roleKey);
+      let roleItem = this.chooseContentList.find(
+        (i) => i.key === this.form.roleKey
+      );
       console.log(roleItem);
       if (!!roleItem) {
         this.form.roleName = roleItem.name;
@@ -342,12 +448,12 @@ export default {
       let modsPath = this.configData.modsPath;
       console.log(modsPath);
       // 非角色mod增加一层文件夹读取
-      if(!!this.activeItem.des) {
-        modsPath = `${modsPath}/${this.activeItem.des}`
+      if (!!this.activeItem.des) {
+        modsPath = `${modsPath}/${this.activeItem.des}`;
         try {
           this.fs.accessSync(modsPath, this.fs.constants.F_OK);
         } catch (error) {
-          this.fs.mkdirSync(modsPath, { recursive: true })
+          this.fs.mkdirSync(modsPath, { recursive: true });
         }
       }
       let mods = this.readDir(modsPath);
@@ -377,7 +483,7 @@ export default {
             position: "top-right",
           });
         }
-      } catch (error) { }
+      } catch (error) {}
     },
 
     // 删除mod记录
@@ -385,8 +491,12 @@ export default {
       let newModList = this.activeItemMods.filter((item, modIndex) => {
         return modIndex !== index;
       });
-      if(!!this.activeItem.type) {
-        this.$set(this.configData[this.activeItem.type][this.activeKey], 'mods' , newModList);
+      if (!!this.activeItem.type) {
+        this.$set(
+          this.configData[this.activeItem.type][this.activeKey],
+          "mods",
+          newModList
+        );
       } else {
         this.$set(this.configData, this.activeKey, newModList);
       }
@@ -403,7 +513,7 @@ export default {
           if (valid) {
             let configData = deepClone(this.configData);
 
-            if(this.tabIndex === 0) {
+            if (this.tabIndex === 0) {
               let modList = [
                 ...(configData[this.form.roleKey] || []),
                 deepClone(this.form),
@@ -412,16 +522,14 @@ export default {
             } else {
               let typeObj = configData[this.tabList[this.tabIndex].value];
               let typeItem = typeObj[this.form.roleKey];
-              let mods = [
-                ...(typeItem.mods || []),
-                deepClone(this.form),
-              ]
+              let mods = [...(typeItem.mods || []), deepClone(this.form)];
               typeItem.mods = mods;
-              configData[this.tabList[this.tabIndex].value][this.form.roleKey] = typeItem
+              configData[this.tabList[this.tabIndex].value][this.form.roleKey] =
+                typeItem;
             }
-            
+
             this.configData = configData;
-            
+
             this.updateConfig();
 
             if (this.modIndex === -1) this.setModActive(0);
@@ -479,10 +587,10 @@ export default {
     // 其他类型mod、工具，添加弹窗
     addOtherType() {
       this.form = {
-        typeName: '',
-        typeIcon: '',
+        typeName: "",
+        typeIcon: "",
         type: this.tabList[this.tabIndex].value,
-        des: this.tabList[this.tabIndex].des
+        des: this.tabList[this.tabIndex].des,
       };
 
       this.showAddType = true;
@@ -497,7 +605,7 @@ export default {
         let configData = deepClone(this.configData);
 
         if (!configData[key]) {
-          console.log(configData)
+          console.log(configData);
           configData[key] = {};
         }
 
@@ -516,10 +624,14 @@ export default {
           mods: [],
           des: this.form.des,
           type: this.form.type,
-          sort: this.chooseContentList.length === 0 ? 1 : (this.chooseContentList[this.chooseContentList.length - 1].sort + 1)
-        }
+          sort:
+            this.chooseContentList.length === 0
+              ? 1
+              : this.chooseContentList[this.chooseContentList.length - 1].sort +
+                1,
+        };
 
-        this.configData = configData
+        this.configData = configData;
 
         this.updateConfig();
         this.$notify({
@@ -529,7 +641,7 @@ export default {
           position: "top-left",
         });
         this.showAddType = false;
-      })
+      });
     },
 
     // 檢查文件是否存在
@@ -549,7 +661,7 @@ export default {
       try {
         return JSON.parse(data) || {};
       } catch (error) {
-        console.log("read error", error)
+        console.log("read error", error);
         return data || {};
       }
     },
@@ -575,7 +687,11 @@ export default {
         });
 
         // 更新文件
-        this.fs.writeFileSync(this.filePath, JSON.stringify(configData, null, 4), 'utf-8');
+        this.fs.writeFileSync(
+          this.filePath,
+          JSON.stringify(configData, null, 4),
+          "utf-8"
+        );
       } catch (error) {
         console.log("error", error);
       }
