@@ -4,7 +4,7 @@
       <!-- 大分類欄 底部切換原神/星鐵按鈕 -->
       <div class="leftTabs">
         <div class="tabIcon">
-          <img src="../assets/appIcon.png" />
+          <img :src="!!game ? `./config/${game}/index.ico` : normalGameIcon" />
         </div>
         <div class="tabIcon" v-for="(item, index) in tabList" :key="item.value">
           <div
@@ -17,7 +17,10 @@
         </div>
         <div class="tabIcon gameChange">
           <div class="tabIconItem">
-            <span class="iconfont icon-change" @click="gameChange"></span>
+            <span
+              class="iconfont icon-change"
+              @click="showChangeGame = true"
+            ></span>
           </div>
         </div>
       </div>
@@ -25,9 +28,10 @@
       <template v-if="game === 'genshin'">
         <!-- 类型 选择区域 -->
         <choose-content
+          v-if="tabList.length"
           :list="chooseContentList"
           @change="setActiveItem"
-          :type="tabListForGenshin[tabIndex].value"
+          :type="tabList[tabIndex].value"
           @addType="addOtherType"
         ></choose-content>
         <!-- 具体mod选择区域 -->
@@ -120,7 +124,7 @@
       <el-input
         :value="configData ? configData.modsPath : '' || ''"
         disabled
-        placeholder="请选择3Dmigoto路径"
+        placeholder="请选择mod应用路径"
       >
         <el-button
           slot="append"
@@ -133,6 +137,46 @@
           type="primary"
           :disabled="!configData || !configData.modsPath"
           @click="showChoose3DmigotoPath = false"
+          >确 定</el-button
+        >
+      </span>
+    </el-dialog>
+
+    <el-dialog
+      title="选择游戏"
+      :visible.sync="showChangeGame"
+      width="500px"
+      height="500px"
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <div class="gameList">
+        <div class="gameItem" v-for="item in indexConfigData" :key="item.key">
+          <div class="gameIcon">
+            <img :src="`./config/${game}/index.ico`" />
+          </div>
+          <div class="gameName">{{ item.name || item.key }}</div>
+        </div>
+        <div class="gameItem isAdd">
+          <div class="gameIcon" @click="chooseGameIcon">
+            <img v-if="!!addGameForm.icon" :src="addGameForm.icon" />
+            <i v-else class="el-icon-plus"></i>
+          </div>
+          <div class="gameName">
+            <el-input
+              v-model="addGameForm.name"
+              placeholder="英文标识"
+              aligen="center"
+            ></el-input>
+          </div>
+        </div>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button
+          type="primary"
+          :disabled="indexConfigData.length === 0 && !addGameForm.name"
+          @click="addNewGame"
           >确 定</el-button
         >
       </span>
@@ -163,6 +207,8 @@ export default {
       fsextra: fsextra,
       electron: electron,
 
+      indexConfigData: [], // 最基础配置文件
+
       showChoose3DmigotoPath: false, // 是否第一次使用该管理器，需要选择游戏路径
       gamePath: "", // 游戏目录
 
@@ -171,30 +217,6 @@ export default {
       filePath: null,
 
       tabIndex: 0,
-      // 左側欄大分類
-      tabListForGenshin: [
-        {
-          label: "角",
-          des: "角色分类",
-          value: "role",
-        },
-        {
-          label: "景",
-          des: "场景分类",
-          value: "scene",
-        },
-        {
-          label: "技",
-          des: "技能分类",
-          value: "skill",
-        },
-        {
-          label: "工",
-          des: "工具分类",
-          value: "tool",
-        },
-      ],
-      tabListForStarrail: [],
 
       // 通用参数
       activeKey: null, // 当前选中的角色/技能/UI key
@@ -217,23 +239,28 @@ export default {
           { required: true, message: "请輸入分类名稱", trigger: "change" },
         ],
       },
+
+      showChangeGame: false, // 显示切换游戏弹窗
+      addGameForm: {
+        name: "",
+        icon: "",
+      },
+      normalGameIcon: require("../assets/appIcon.png"),
     };
   },
 
   computed: {
     // 动态显示左侧tab栏
     tabList() {
-      if (this.game === "genshin") {
-        return this.tabListForGenshin;
-      } else if (this.game === "starrail") {
-        return this.tabListForStarrail;
+      if (!!this.game) {
+        return this.configData.tabList || [];
       }
       return [];
     },
 
     // 动态显示选择栏
     chooseContentList() {
-      if (this.game === "genshin") {
+      if (!!this.game && !!this.tabList.length) {
         let key = this.tabList[this.tabIndex].value;
         switch (key) {
           case "role":
@@ -304,18 +331,51 @@ export default {
   },
 
   mounted() {
+    // 获取基础配置
+    this.getIndexConfig();
+
     // 初始化游戏类型
-    this.gameChange();
+    // this.gameChange();
   },
 
   methods: {
+    getIndexConfig() {
+      let configDir = "./config";
+      if (!this.fs.existsSync(configDir)) {
+        // 创建config目录
+        this.fs.mkdirSync(configDir);
+      }
+
+      // 初始化所有游戏config數據
+      const subdirs = this.fs.readdirSync(configDir);
+      const directories = subdirs.filter((subdir) => {
+        let fullPath = `${configDir}/${subdir}`;
+        return this.fs.statSync(fullPath).isDirectory();
+      });
+      console.log(this.allRoleInfo);
+
+      // 创建游戏
+      if (directories.length === 0) {
+        this.showChangeGame = true;
+      }
+
+      directories.forEach((dir) => {
+        let gemeIniPath = `${configDir}/${dir}/index.ini`;
+        let gameInfo = this.readConfig(gemeIniPath);
+        this.indexConfigData = [...this.indexConfigData, gameInfo];
+      });
+
+      this.gameChange(0);
+    },
+
     // 游戏切换
-    gameChange() {
+    gameChange(index) {
       this.tabIndex = 0;
       this.activeKey = null;
       this.modIndex = -1;
-      this.game = this.game === "genshin" ? "starrail" : "genshin";
-      this.filePath = `config/${this.game}.ini`;
+      this.configData = this.indexConfigData[index];
+      this.game = this.configData.key;
+      this.filePath = `./config/${this.game}/index.ini`;
 
       // 初始化获取配置
       this.init();
@@ -323,16 +383,7 @@ export default {
 
     // 初始化获取配置
     init() {
-      // 创建目录
-      if (!this.fs.existsSync("./config")) {
-        this.fs.mkdirSync("./config");
-      }
-      // 初始化config數據
-      if (!this.checkConfig()) {
-        this.fs.writeFileSync(this.filePath, "");
-      }
-
-      this.configData = this.readConfig();
+      this.configData = this.readConfig(this.filePath);
       console.log("configData", this.configData);
 
       // 选择3Dmigoto路径
@@ -350,15 +401,92 @@ export default {
         },
         ([modsPath]) => {
           console.log(modsPath);
-          this.configData = { modsPath: modsPath.replace(/\\/g, "/") };
+          this.$set(this.configData, "modsPath", modsPath.replace(/\\/g, "/"));
           this.updateConfig();
         }
       );
     },
 
+    // 选择文件
+    chooseFile() {
+      return new Promise((resolve, reject) => {
+        this.$electron.remote.dialog.showOpenDialog(
+          {
+            properties: ["openFile"],
+          },
+          ([filePath]) => {
+            resolve(filePath);
+          }
+        );
+      });
+    },
+
+    // 选择游戏图标
+    chooseGameIcon() {
+      this.chooseFile().then((filePath) => {
+        let newFilePath = `config/linshi.ico`;
+        this.fsextra.copySync(filePath, newFilePath);
+        this.addGameForm.icon = newFilePath;
+      });
+    },
+
+    // 新增游戏
+    addNewGame() {
+      if (!!this.addGameForm.name) {
+        let gamePath = `./config/${this.addGameForm.name}`;
+        if (!!this.fs.existsSync(gamePath)) {
+          this.$message({
+            showClose: true,
+            message: "已存在相同key的游戏，请重新输入key",
+            type: "error",
+          });
+          return;
+        }
+        // 创建config目录
+        this.fs.mkdirSync(gamePath);
+        let gameInfo = {
+          key: this.addGameForm.name,
+          name: this.addGameForm.name,
+          tabList: [
+            {
+              label: "角",
+              des: "角色分类",
+              value: "role",
+            },
+          ],
+        };
+
+        // 创建配置文件
+        this.fs.writeFileSync(
+          `${gamePath}/index.ini`,
+          JSON.stringify(gameInfo)
+        );
+        // 创建游戏图标
+        if (!!this.addGameForm.icon)
+          this.fsextra.copySync(this.addGameForm.icon, `${gamePath}/index.ico`);
+
+        // 更新内存数据
+        this.indexConfigData.push(gameInfo);
+      }
+
+      if (!!this.addGameForm.icon) {
+        this.fsextra.removeSync(this.addGameForm.icon);
+      }
+
+      this.showChangeGame = false;
+      this.addGameForm = {
+        name: null,
+        icon: null,
+      };
+
+      if (this.indexConfigData.length === 1) {
+        this.gameChange(0);
+      }
+    },
+
     // 设置对应游戏背景
     getBgImg() {
-      return `background-image: url(${bgImg[this.game]})`;
+      return `background-image: url(${bgImg[this.game || "normal"]})`;
     },
 
     // tab切换
@@ -645,9 +773,9 @@ export default {
     },
 
     // 檢查文件是否存在
-    checkConfig() {
+    checkConfig(filePath) {
       try {
-        this.fs.accessSync(this.filePath, this.fs.constants.F_OK);
+        this.fs.accessSync(filePath, this.fs.constants.F_OK);
         return true;
       } catch (error) {
         return false;
@@ -655,9 +783,9 @@ export default {
     },
 
     // 读取配置文件内容
-    readConfig() {
+    readConfig(filePath) {
       // 同步读取配置文件
-      const data = this.fs.readFileSync(this.filePath, "utf-8");
+      const data = this.fs.readFileSync(filePath, "utf-8");
       try {
         return JSON.parse(data) || {};
       } catch (error) {
@@ -766,6 +894,61 @@ export default {
             color: white;
             font-weight: 600;
           }
+        }
+      }
+    }
+  }
+}
+
+.gameList {
+  display: flex;
+
+  .gameItem {
+    width: 120px;
+    margin-left: 20px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    .gameIcon {
+      width: 120px;
+      height: 160px;
+      border-radius: 10px;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+
+    .gameName {
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    &.isAdd {
+      .gameIcon {
+        display: flex;
+        align-items: center;
+        border: 1px solid #dcdfe6;
+        box-sizing: border-box;
+        cursor: pointer;
+
+        i {
+          font-size: 60px;
+          margin: auto;
+          color: #dcdfe6;
+        }
+      }
+      .gameName {
+        margin-top: 10px;
+
+        ::v-deep input {
+          text-align: center;
         }
       }
     }
