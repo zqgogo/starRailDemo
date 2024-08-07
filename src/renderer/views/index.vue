@@ -25,31 +25,29 @@
         </div>
       </div>
 
-      <template v-if="game === 'genshin'">
-        <!-- 类型 选择区域 -->
-        <choose-content
-          v-if="tabList.length"
-          :list="chooseContentList"
-          @change="setActiveItem"
-          :type="tabList[tabIndex].value"
-          @addType="addOtherType"
-        ></choose-content>
-        <!-- 具体mod选择区域 -->
-        <mod-content
-          v-if="!!activeKey"
-          v-model="modIndex"
-          :activeItem="activeItem"
-          :list="activeItemMods"
-          @change="setModActive"
-          @delete="deleteMod"
-        ></mod-content>
-        <!-- mod展示區域,按鈕放底部 -->
-        <mod-detail-content
-          v-if="modIndex >= 0"
-          :mod="modItem"
-          @applyMod="applyMod"
-        ></mod-detail-content>
-      </template>
+      <!-- 类型 选择区域 -->
+      <choose-content
+        v-if="tabList.length"
+        :list="chooseContentList"
+        @change="setActiveItem"
+        :type="tabList[tabIndex].value"
+        @addType="addOtherType"
+      ></choose-content>
+      <!-- 具体mod选择区域 -->
+      <mod-content
+        v-if="!!activeKey"
+        v-model="modIndex"
+        :activeItem="activeItem"
+        :list="activeItemMods"
+        @change="setModActive"
+        @delete="deleteMod"
+      ></mod-content>
+      <!-- mod展示區域,按鈕放底部 -->
+      <mod-detail-content
+        v-if="modIndex >= 0"
+        :mod="modItem"
+        @applyMod="applyMod"
+      ></mod-detail-content>
     </div>
 
     <el-drawer
@@ -186,7 +184,6 @@
 
 <script>
 import { deepClone } from "../utils/index.js";
-import { allRoleInfo } from "../utils/roleInfo.js";
 import { bgImg } from "../utils/img.js";
 
 import chooseContent from "../components/chooseContent.vue";
@@ -222,9 +219,6 @@ export default {
       activeKey: null, // 当前选中的角色/技能/UI key
       configData: null, // 配置文件数据
       modIndex: -1, // 选择的mod index -1表示未选中
-
-      // 原神参数
-      allRoleInfo: allRoleInfo, // 角色数据
 
       // 弹窗参数
       dialogVisible: false, // 添加mod弹窗
@@ -262,16 +256,22 @@ export default {
     chooseContentList() {
       if (!!this.game && !!this.tabList.length) {
         let key = this.tabList[this.tabIndex].value;
-        switch (key) {
-          case "role":
-            return this.allRoleInfo || [];
-          default:
-            let list = this.configData[key] || {};
-            console.log("list", list);
-            return Object.values(list).sort((a, b) => {
-              return a.sort - b.sort;
-            });
+        let roleInfoIniPath = `./config/${this.game}/${key}.ini`;
+        if (!this.fs.existsSync(roleInfoIniPath)) {
+          this.fs.writeFileSync(roleInfoIniPath, "");
         }
+        let roleInfo = this.readConfig(roleInfoIniPath) || [];
+        return roleInfo;
+        // switch (key) {
+        //   case "role":
+        //     return this.allRoleInfo || [];
+        //   default:
+        //     let list = this.configData[key] || {};
+        //     console.log("list", list);
+        //     return Object.values(list).sort((a, b) => {
+        //       return a.sort - b.sort;
+        //     });
+        // }
       }
     },
 
@@ -352,7 +352,6 @@ export default {
         let fullPath = `${configDir}/${subdir}`;
         return this.fs.statSync(fullPath).isDirectory();
       });
-      console.log(this.allRoleInfo);
 
       // 创建游戏
       if (directories.length === 0) {
@@ -361,7 +360,7 @@ export default {
 
       directories.forEach((dir) => {
         let gemeIniPath = `${configDir}/${dir}/index.ini`;
-        let gameInfo = this.readConfig(gemeIniPath);
+        let gameInfo = this.readConfig(gemeIniPath) || {};
         this.indexConfigData = [...this.indexConfigData, gameInfo];
       });
 
@@ -383,7 +382,7 @@ export default {
 
     // 初始化获取配置
     init() {
-      this.configData = this.readConfig(this.filePath);
+      this.configData = this.readConfig(this.filePath) || {};
       console.log("configData", this.configData);
 
       // 选择3Dmigoto路径
@@ -453,6 +452,21 @@ export default {
               des: "角色分类",
               value: "role",
             },
+            // {
+            //   label: "景",
+            //   des: "场景分类",
+            //   value: "scene",
+            // },
+            // {
+            //   label: "技",
+            //   des: "技能分类",
+            //   value: "skill",
+            // },
+            // {
+            //   label: "工",
+            //   des: "工具分类",
+            //   value: "tool",
+            // },
           ],
         };
 
@@ -486,7 +500,9 @@ export default {
 
     // 设置对应游戏背景
     getBgImg() {
-      return `background-image: url(${bgImg[this.game || "normal"]})`;
+      let backgroundImg = `./config/${this.game ? `${this.game}/` : ""}bg.png`;
+      if (!this.fs.existsSync(backgroundImg)) backgroundImg = bgImg.normal;
+      return `background-image: url(${backgroundImg})`;
     },
 
     // tab切换
@@ -787,10 +803,10 @@ export default {
       // 同步读取配置文件
       const data = this.fs.readFileSync(filePath, "utf-8");
       try {
-        return JSON.parse(data) || {};
+        return JSON.parse(data);
       } catch (error) {
         console.log("read error", error);
-        return data || {};
+        return data;
       }
     },
 
@@ -837,6 +853,8 @@ export default {
   width: 100%;
   height: 100%;
   background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
 
   .layer {
     width: 100%;
