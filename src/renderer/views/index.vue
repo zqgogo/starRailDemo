@@ -58,9 +58,9 @@
       :close-on-press-escape="false"
       :wrapperClosable="false"
     >
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
         <!-- 添加角色mod -->
-        <el-form-item label="角色" prop="roleKey">
+        <el-form-item label="角色/分类" prop="roleKey">
           <el-select
             v-model="form.roleKey"
             placeholder="请选择"
@@ -99,6 +99,9 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="分类名称" prop="typeName">
           <el-input v-model="form.typeName"></el-input>
+        </el-form-item>
+        <el-form-item label="分类标识" prop="typeKey">
+          <el-input v-model="form.typeKey"></el-input>
         </el-form-item>
         <el-form-item label="分类图标" prop="typeIcon">
           <el-input v-model="form.typeIcon"></el-input>
@@ -150,7 +153,12 @@
       :close-on-press-escape="false"
     >
       <div class="gameList">
-        <div class="gameItem" v-for="item in indexConfigData" :key="item.key">
+        <div
+          class="gameItem"
+          v-for="(item, index) in indexConfigData"
+          :key="item.key"
+          @click="gameChange(index)"
+        >
           <div class="gameIcon">
             <img :src="`./config/${game}/index.ico`" />
           </div>
@@ -211,13 +219,13 @@ export default {
 
       game: "", // 當前遊戲 默認原神
       pageLoading: false, // 页面loading
-      filePath: null,
 
       tabIndex: 0,
 
       // 通用参数
       activeKey: null, // 当前选中的角色/技能/UI key
       configData: null, // 配置文件数据
+      modConfigData: null, // mod信息
       modIndex: -1, // 选择的mod index -1表示未选中
 
       // 弹窗参数
@@ -231,6 +239,9 @@ export default {
         ],
         typeName: [
           { required: true, message: "请輸入分类名稱", trigger: "change" },
+        ],
+        typeKey: [
+          { required: true, message: "请輸入分类标识", trigger: "change" },
         ],
       },
 
@@ -254,13 +265,13 @@ export default {
 
     // 动态显示选择栏
     chooseContentList() {
-      if (!!this.game && !!this.tabList.length) {
+      if (!!this.game && !!this.tabList.length && this.tabIndex >= 0) {
         let key = this.tabList[this.tabIndex].value;
-        let roleInfoIniPath = `./config/${this.game}/${key}.ini`;
-        if (!this.fs.existsSync(roleInfoIniPath)) {
-          this.fs.writeFileSync(roleInfoIniPath, "");
+        let typeListIniPath = `./config/${this.game}/${key}.ini`;
+        if (!this.checkConfig(typeListIniPath)) {
+          this.fs.writeFileSync(typeListIniPath, "");
         }
-        let roleInfo = this.readConfig(roleInfoIniPath) || [];
+        let roleInfo = this.readConfig(typeListIniPath) || [];
         return roleInfo;
         // switch (key) {
         //   case "role":
@@ -273,6 +284,7 @@ export default {
         //     });
         // }
       }
+      return [];
     },
 
     // 选择的角色/技能/场景
@@ -281,7 +293,6 @@ export default {
         let item = this.chooseContentList.find((item) => {
           return item.key === this.activeKey;
         });
-        console.log("activeItem", item);
         return item;
       }
       return null;
@@ -289,14 +300,20 @@ export default {
 
     // 选中角色、类型下的mod列表
     activeItemMods() {
-      console.log("activeItem", this.activeItem);
-      if (!!this.activeItem && !!this.activeItem.key) {
-        if (this.tabIndex === 0) {
-          let activeItemMods = this.configData[this.activeItem.key] || [];
-          return activeItemMods;
-        } else {
-          return this.activeItem.mods || [];
-        }
+      // if (!!this.activeItem && !!this.activeItem.key) {
+      //   if (this.tabIndex === 0) {
+      //     let activeItemMods = this.configData[this.activeItem.key] || [];
+      //     return activeItemMods;
+      //   } else {
+      //     return this.activeItem.mods || [];
+      //   }
+      // }
+      // return [];
+      if (!!this.modConfigData && !!this.tabList && this.tabIndex >= 0) {
+        let key = this.tabList[this.tabIndex].value;
+        let typeList = this.modConfigData[key] || {};
+        let modList = typeList[this.activeItem.key] || [];
+        return modList;
       }
       return [];
     },
@@ -374,7 +391,6 @@ export default {
       this.modIndex = -1;
       this.configData = this.indexConfigData[index];
       this.game = this.configData.key;
-      this.filePath = `./config/${this.game}/index.ini`;
 
       // 初始化获取配置
       this.init();
@@ -382,8 +398,12 @@ export default {
 
     // 初始化获取配置
     init() {
-      this.configData = this.readConfig(this.filePath) || {};
+      this.configData =
+        this.readConfig(`./config/${this.game}/index.ini`) || {};
       console.log("configData", this.configData);
+
+      this.modConfigData =
+        this.readConfig(`./config/${this.game}/mod.ini`) || {};
 
       // 选择3Dmigoto路径
       if (!this.configData.modsPath) {
@@ -401,7 +421,7 @@ export default {
         ([modsPath]) => {
           console.log(modsPath);
           this.$set(this.configData, "modsPath", modsPath.replace(/\\/g, "/"));
-          this.updateConfig();
+          // this.updateConfig();
         }
       );
     },
@@ -501,7 +521,7 @@ export default {
     // 设置对应游戏背景
     getBgImg() {
       let backgroundImg = `./config/${this.game ? `${this.game}/` : ""}bg.png`;
-      if (!this.fs.existsSync(backgroundImg)) backgroundImg = bgImg.normal;
+      if (!this.checkConfig(backgroundImg)) backgroundImg = bgImg.normal;
       return `background-image: url(${backgroundImg})`;
     },
 
@@ -518,11 +538,8 @@ export default {
       this.activeKey = key;
       this.modIndex = -1;
 
-      let modList = this.configData[key];
-      if (this.tabIndex !== 0) {
-        let tabValue = this.tabList[this.tabIndex].value;
-        modList = this.configData[tabValue][key].mods || [];
-      }
+      let tabKey = this.tabList[this.tabIndex].value;
+      let modList = this.modConfigData[tabKey][key] || [];
 
       if (!!modList && !!modList.length) {
         this.setModActive(0);
@@ -550,7 +567,7 @@ export default {
           }
           return false;
         });
-        // 将上述获取的文件转换base64并添加到configData中
+        // 将上述获取的文件转换base64并添加到modConfigData中
         let newModItem = {
           ...modItem,
           imgs: imgs.map((i) => {
@@ -561,15 +578,11 @@ export default {
             )}`;
           }),
         };
-        if (!!this.activeItem.type) {
-          this.$set(
-            this.configData[this.activeItem.type][this.activeKey].mods,
-            this.modIndex,
-            newModItem
-          );
-        } else {
-          this.$set(this.configData[this.activeKey], this.modIndex, newModItem);
-        }
+        this.$set(
+          this.modConfigData[this.activeItem.type || "role"][this.activeKey],
+          this.modIndex,
+          newModItem
+        );
       }
     },
 
@@ -635,18 +648,15 @@ export default {
       let newModList = this.activeItemMods.filter((item, modIndex) => {
         return modIndex !== index;
       });
-      if (!!this.activeItem.type) {
-        this.$set(
-          this.configData[this.activeItem.type][this.activeKey],
-          "mods",
-          newModList
-        );
-      } else {
-        this.$set(this.configData, this.activeKey, newModList);
-      }
+      this.$set(
+        this.modConfigData[this.activeItem.type || "role"],
+        this.activeKey,
+        newModList
+      );
+
       if (newModList.length === 0) this.modIndex = -1;
       else if (this.modIndex >= index) this.modIndex += -1;
-      this.updateConfig();
+      this.updateModConfig();
     },
 
     // mod添加弹窗 || 添加mod || 添加图片
@@ -655,26 +665,22 @@ export default {
       if (path === true) {
         this.$refs.form.validate((valid) => {
           if (valid) {
-            let configData = deepClone(this.configData);
+            let key = this.tabList[this.tabIndex].value;
+            let modConfigData = deepClone(this.modConfigData || {});
 
-            if (this.tabIndex === 0) {
-              let modList = [
-                ...(configData[this.form.roleKey] || []),
-                deepClone(this.form),
-              ];
-              configData[this.form.roleKey] = modList;
-            } else {
-              let typeObj = configData[this.tabList[this.tabIndex].value];
-              let typeItem = typeObj[this.form.roleKey];
-              let mods = [...(typeItem.mods || []), deepClone(this.form)];
-              typeItem.mods = mods;
-              configData[this.tabList[this.tabIndex].value][this.form.roleKey] =
-                typeItem;
+            if (!modConfigData[key]) {
+              modConfigData[key] = {};
+              modConfigData[key][this.form.roleKey] = [];
             }
+            let modTypeList = modConfigData[key][this.form.roleKey] || [];
 
-            this.configData = configData;
+            modConfigData[key][this.form.roleKey] = [
+              ...modTypeList,
+              deepClone(this.form),
+            ];
 
-            this.updateConfig();
+            this.modConfigData = modConfigData;
+            this.updateModConfig();
 
             if (this.modIndex === -1) this.setModActive(0);
             this.dialogVisible = false;
@@ -731,6 +737,7 @@ export default {
     // 其他类型mod、工具，添加弹窗
     addOtherType() {
       this.form = {
+        typeKey: "",
         typeName: "",
         typeIcon: "",
         type: this.tabList[this.tabIndex].value,
@@ -745,26 +752,26 @@ export default {
       this.$refs.form.validate((valid) => {
         if (!valid) return;
 
-        let key = this.tabList[this.tabIndex].value;
-        let configData = deepClone(this.configData);
+        let chooseContentList = deepClone(this.chooseContentList);
 
-        if (!configData[key]) {
-          console.log(configData);
-          configData[key] = {};
-        }
-
-        if (!!configData[key][this.form.typeName])
-          return this.$notify({
+        // 校验是否有重复名称的分类
+        let index = chooseContentList.findIndex(
+          (i) => i.key === this.form.typeKey
+        );
+        if (index >= 0) {
+          this.$notify({
             title: "错误",
             message: "新增失败，已存在该分类",
             type: "error",
             position: "top-left",
           });
+          return;
+        }
 
-        configData[key][this.form.typeName] = {
-          key: this.form.typeName,
+        let newTypeItem = {
+          key: this.form.typeKey,
           name: this.form.typeName,
-          icon: this.form.typeIcon,
+          icon: this.form.typeIcon || `./config/${this.game}/index.ico`,
           mods: [],
           des: this.form.des,
           type: this.form.type,
@@ -774,18 +781,58 @@ export default {
               : this.chooseContentList[this.chooseContentList.length - 1].sort +
                 1,
         };
+        chooseContentList.push(newTypeItem);
 
-        this.configData = configData;
+        // 更新配置文件
+        let key = this.tabList[this.tabIndex].value;
+        let typeListIniPath = `./config/${this.game}/${key}.ini`;
+        this.fs.writeFileSync(
+          typeListIniPath,
+          JSON.stringify(chooseContentList, null, 4),
+          "utf-8"
+        );
 
-        this.updateConfig();
         this.$notify({
           title: "成功",
           message: "新增成功",
           type: "success",
           position: "top-left",
         });
+        let tabIndex = this.tabIndex;
+        this.tabIndex = -1;
+        this.tabIndex = tabIndex;
         this.showAddType = false;
       });
+    },
+
+    // 更新config文件
+    updateModConfig() {
+      try {
+        // 保存之前删除图片缓存
+        let modConfigData = deepClone(this.modConfigData || {});
+        Object.keys(modConfigData).forEach((key) => {
+          let typeList = modConfigData[key] || {};
+          Object.keys(typeList).forEach((typeKey) => {
+            let modList = typeList[typeKey] || [];
+            if (!!this.isArray(modList) && !!modList.length) {
+              modList.forEach((item) => {
+                delete item.imgs;
+              });
+            }
+          });
+        });
+        console.log("modConfigData", modConfigData);
+
+        let modInfoPath = `./config/${this.game}/mod.ini`;
+        // 更新文件
+        this.fs.writeFileSync(
+          modInfoPath,
+          JSON.stringify(modConfigData, null, 4),
+          "utf-8"
+        );
+      } catch (error) {
+        console.log("error", error);
+      }
     },
 
     // 檢查文件是否存在
@@ -798,7 +845,7 @@ export default {
       }
     },
 
-    // 读取配置文件内容
+    // 读取文件内容
     readConfig(filePath) {
       // 同步读取配置文件
       const data = this.fs.readFileSync(filePath, "utf-8");
@@ -816,31 +863,7 @@ export default {
       return files;
     },
 
-    // 更新config文件
-    updateConfig() {
-      try {
-        // 保存之前删除图片缓存
-        let configData = deepClone(this.configData);
-        Object.keys(configData).forEach((key) => {
-          if (!!this.isArray(configData[key]) && !!configData[key].length) {
-            let roleItemMods = configData[key];
-            roleItemMods.forEach((item) => {
-              delete item.imgs;
-            });
-          }
-        });
-
-        // 更新文件
-        this.fs.writeFileSync(
-          this.filePath,
-          JSON.stringify(configData, null, 4),
-          "utf-8"
-        );
-      } catch (error) {
-        console.log("error", error);
-      }
-    },
-
+    // 判断是否为数组
     isArray(obj) {
       return typeof obj === "object" && Array.isArray(obj);
     },
@@ -924,6 +947,15 @@ export default {
   .gameItem {
     width: 120px;
     margin-left: 20px;
+    cursor: pointer;
+    border: 2px solid;
+    box-sizing: border-box;
+    border-radius: 5px;
+    border-color: transparent;
+
+    &:hover {
+      border-color: #0645ad;
+    }
 
     &:first-child {
       margin-left: 0;
@@ -949,6 +981,12 @@ export default {
     }
 
     &.isAdd {
+      cursor: default;
+
+      &:hover {
+        border-color: transparent;
+      }
+
       .gameIcon {
         display: flex;
         align-items: center;

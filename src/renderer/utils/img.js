@@ -1,5 +1,5 @@
 let bgImg = {
-  normal: require(`../assets/normal.jpg`),
+  normal: require(`../assets/bg.jpg`),
 };
 
 export { bgImg };

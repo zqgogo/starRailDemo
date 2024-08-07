@@ -17,7 +17,7 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "米哈游模组管理器",
+    "productName": "MOD管理器",
     "appId": "com.mihoyo.modManager",
     "directories": {
       "output": "build"
