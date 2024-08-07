@@ -123,7 +123,7 @@
       :close-on-press-escape="false"
     >
       <el-input
-        :value="configData ? configData.modsPath : '' || ''"
+        :value="gameBaseData ? gameBaseData.modsPath : '' || ''"
         disabled
         placeholder="请选择mod应用路径"
       >
@@ -136,7 +136,7 @@
       <span slot="footer" class="dialog-footer">
         <el-button
           type="primary"
-          :disabled="!configData || !configData.modsPath"
+          :disabled="!gameBaseData || !gameBaseData.modsPath"
           @click="showChoose3DmigotoPath = false"
           >确 定</el-button
         >
@@ -212,20 +212,20 @@ export default {
       fsextra: fsextra,
       electron: electron,
 
-      indexConfigData: [], // 最基础配置文件
+      indexConfigData: [], // 最基础信息,包含当前config目录下各个游戏的基础信息
 
       showChoose3DmigotoPath: false, // 是否第一次使用该管理器，需要选择游戏路径
       gamePath: "", // 游戏目录
 
-      game: "", // 當前遊戲 默認原神
+      game: "", // 當前遊戲
       pageLoading: false, // 页面loading
 
       tabIndex: 0,
 
       // 通用参数
       activeKey: null, // 当前选中的角色/技能/UI key
-      configData: null, // 配置文件数据
-      modConfigData: null, // mod信息
+      gameBaseData: null, // 基础配置文件信息，包含当前游戏的基础信息
+      modConfigData: null, // mod配置文件信息
       modIndex: -1, // 选择的mod index -1表示未选中
 
       // 弹窗参数
@@ -250,7 +250,6 @@ export default {
         name: "",
         icon: "",
       },
-      normalGameIcon: require("../assets/appIcon.png"),
     };
   },
 
@@ -258,7 +257,7 @@ export default {
     // 动态显示左侧tab栏
     tabList() {
       if (!!this.game) {
-        return this.configData.tabList || [];
+        return this.gameBaseData.tabList || [];
       }
       return [];
     },
@@ -273,16 +272,6 @@ export default {
         }
         let roleInfo = this.readConfig(typeListIniPath) || [];
         return roleInfo;
-        // switch (key) {
-        //   case "role":
-        //     return this.allRoleInfo || [];
-        //   default:
-        //     let list = this.configData[key] || {};
-        //     console.log("list", list);
-        //     return Object.values(list).sort((a, b) => {
-        //       return a.sort - b.sort;
-        //     });
-        // }
       }
       return [];
     },
@@ -300,15 +289,6 @@ export default {
 
     // 选中角色、类型下的mod列表
     activeItemMods() {
-      // if (!!this.activeItem && !!this.activeItem.key) {
-      //   if (this.tabIndex === 0) {
-      //     let activeItemMods = this.configData[this.activeItem.key] || [];
-      //     return activeItemMods;
-      //   } else {
-      //     return this.activeItem.mods || [];
-      //   }
-      // }
-      // return [];
       if (!!this.modConfigData && !!this.tabList && this.tabIndex >= 0) {
         let key = this.tabList[this.tabIndex].value;
         let typeList = this.modConfigData[key] || {};
@@ -389,8 +369,8 @@ export default {
       this.tabIndex = 0;
       this.activeKey = null;
       this.modIndex = -1;
-      this.configData = this.indexConfigData[index];
-      this.game = this.configData.key;
+      this.gameBaseData = this.indexConfigData[index];
+      this.game = this.gameBaseData.key;
 
       // 初始化获取配置
       this.init();
@@ -398,15 +378,13 @@ export default {
 
     // 初始化获取配置
     init() {
-      this.configData =
-        this.readConfig(`./config/${this.game}/index.ini`) || {};
-      console.log("configData", this.configData);
+      console.log("gameBaseData", this.gameBaseData);
 
       this.modConfigData =
         this.readConfig(`./config/${this.game}/mod.ini`) || {};
 
       // 选择3Dmigoto路径
-      if (!this.configData.modsPath) {
+      if (!this.gameBaseData.modsPath) {
         this.showChoose3DmigotoPath = true;
       }
     },
@@ -420,7 +398,11 @@ export default {
         },
         ([modsPath]) => {
           console.log(modsPath);
-          this.$set(this.configData, "modsPath", modsPath.replace(/\\/g, "/"));
+          this.$set(
+            this.gameBaseData,
+            "modsPath",
+            modsPath.replace(/\\/g, "/")
+          );
           // this.updateConfig();
         }
       );
@@ -579,7 +561,9 @@ export default {
           }),
         };
         this.$set(
-          this.modConfigData[this.activeItem.type || "role"][this.activeKey],
+          this.modConfigData[this.activeItem.type || "role"][
+            this.activeItem.key
+          ],
           this.modIndex,
           newModItem
         );
@@ -602,7 +586,7 @@ export default {
       if (!this.modItem) return;
       let modInfo = this.modItem;
       // 讀取mod目錄下文件
-      let modsPath = this.configData.modsPath;
+      let modsPath = this.gameBaseData.modsPath;
       console.log(modsPath);
       // 非角色mod增加一层文件夹读取
       if (!!this.activeItem.des) {
@@ -650,7 +634,7 @@ export default {
       });
       this.$set(
         this.modConfigData[this.activeItem.type || "role"],
-        this.activeKey,
+        this.activeItem.key,
         newModList
       );
 
