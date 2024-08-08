@@ -257,6 +257,7 @@ export default {
         name: "",
         icon: "",
       },
+      normalGameIcon: require("../assets/appIcon.png"),
     };
   },
 

@@ -56,8 +56,8 @@
             <img :src="$setImgUrl(item.head || item.icon)" />
           </div>
           <div class="roleName">{{ item.name }}</div>
-          <div class="roleAttr">
-            <img :src="item.vision" />
+          <div class="roleAttr" v-if="item.vision">
+            <img :src="$setImgUrl(item.vision)" />
           </div>
         </div>
       </div>
