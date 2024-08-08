@@ -509,10 +509,9 @@ export default {
 
     // 设置对应游戏背景
     getBgImg() {
-      let backgroundImg = this.$setImgUrl(
-        `config/${this.game ? `${this.game}/` : ""}bg.png`
-      );
-      if (!this.checkConfig(backgroundImg)) backgroundImg = bgImg.normal;
+      let bgImgUrl = `config/${this.game ? `${this.game}/` : ""}bg.png`;
+      let backgroundImg = this.$setImgUrl(bgImgUrl);
+      if (!this.checkConfig(bgImgUrl)) backgroundImg = bgImg.normal;
       return `background-image: url(${backgroundImg})`;
     },
 
