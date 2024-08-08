@@ -4,7 +4,11 @@
       <!-- 大分類欄 底部切換原神/星鐵按鈕 -->
       <div class="leftTabs">
         <div class="tabIcon">
-          <img :src="!!game ? `./config/${game}/index.ico` : normalGameIcon" />
+          <img
+            :src="
+              !!game ? $setImgUrl(`config/${game}/index.ico`) : normalGameIcon
+            "
+          />
         </div>
         <div class="tabIcon" v-for="(item, index) in tabList" :key="item.value">
           <div
@@ -160,13 +164,16 @@
           @click="gameChange(index)"
         >
           <div class="gameIcon">
-            <img :src="`./config/${game}/index.ico`" />
+            <img :src="$setImgUrl(`config/${game}/index.ico`)" />
           </div>
           <div class="gameName">{{ item.name || item.key }}</div>
         </div>
         <div class="gameItem isAdd">
           <div class="gameIcon" @click="chooseGameIcon">
-            <img v-if="!!addGameForm.icon" :src="addGameForm.icon" />
+            <img
+              v-if="!!addGameForm.icon"
+              :src="$setImgUrl(addGameForm.icon)"
+            />
             <i v-else class="el-icon-plus"></i>
           </div>
           <div class="gameName">
@@ -266,7 +273,7 @@ export default {
     chooseContentList() {
       if (!!this.game && !!this.tabList.length && this.tabIndex >= 0) {
         let key = this.tabList[this.tabIndex].value;
-        let typeListIniPath = `./config/${this.game}/${key}.ini`;
+        let typeListIniPath = `config/${this.game}/${key}.ini`;
         if (!this.checkConfig(typeListIniPath)) {
           this.fs.writeFileSync(typeListIniPath, "");
         }
@@ -337,7 +344,7 @@ export default {
 
   methods: {
     getIndexConfig() {
-      let configDir = "./config";
+      let configDir = "config";
       if (!this.fs.existsSync(configDir)) {
         // 创建config目录
         this.fs.mkdirSync(configDir);
@@ -380,8 +387,7 @@ export default {
     init() {
       console.log("gameBaseData", this.gameBaseData);
 
-      this.modConfigData =
-        this.readConfig(`./config/${this.game}/mod.ini`) || {};
+      this.modConfigData = this.readConfig(`config/${this.game}/mod.ini`) || {};
 
       // 选择3Dmigoto路径
       if (!this.gameBaseData.modsPath) {
@@ -434,7 +440,7 @@ export default {
     // 新增游戏
     addNewGame() {
       if (!!this.addGameForm.name) {
-        let gamePath = `./config/${this.addGameForm.name}`;
+        let gamePath = `config/${this.addGameForm.name}`;
         if (!!this.fs.existsSync(gamePath)) {
           this.$message({
             showClose: true,
@@ -502,7 +508,9 @@ export default {
 
     // 设置对应游戏背景
     getBgImg() {
-      let backgroundImg = `./config/${this.game ? `${this.game}/` : ""}bg.png`;
+      let backgroundImg = this.$setImgUrl(
+        `config/${this.game ? `${this.game}/` : ""}bg.png`
+      );
       if (!this.checkConfig(backgroundImg)) backgroundImg = bgImg.normal;
       return `background-image: url(${backgroundImg})`;
     },
@@ -755,7 +763,7 @@ export default {
         let newTypeItem = {
           key: this.form.typeKey,
           name: this.form.typeName,
-          icon: this.form.typeIcon || `./config/${this.game}/index.ico`,
+          icon: this.form.typeIcon || `config/${this.game}/index.ico`,
           mods: [],
           des: this.form.des,
           type: this.form.type,
@@ -769,7 +777,7 @@ export default {
 
         // 更新配置文件
         let key = this.tabList[this.tabIndex].value;
-        let typeListIniPath = `./config/${this.game}/${key}.ini`;
+        let typeListIniPath = `config/${this.game}/${key}.ini`;
         this.fs.writeFileSync(
           typeListIniPath,
           JSON.stringify(chooseContentList, null, 4),
@@ -807,7 +815,7 @@ export default {
         });
         console.log("modConfigData", modConfigData);
 
-        let modInfoPath = `./config/${this.game}/mod.ini`;
+        let modInfoPath = `config/${this.game}/mod.ini`;
         // 更新文件
         this.fs.writeFileSync(
           modInfoPath,

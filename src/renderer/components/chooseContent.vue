@@ -53,7 +53,7 @@
             class="roleImg"
             :class="{ fourStar: item.star === 4, noStar: !item.star }"
           >
-            <img :src="item.head || item.icon" />
+            <img :src="$setImgUrl(item.head || item.icon)" />
           </div>
           <div class="roleName">{{ item.name }}</div>
           <div class="roleAttr">

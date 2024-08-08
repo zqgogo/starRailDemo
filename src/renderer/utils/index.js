@@ -1,3 +1,14 @@
+const fs = require("fs");
+
+function checkConfig(filePath) {
+  try {
+    fs.accessSync(filePath, fs.constants.F_OK);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 export function deepClone(obj) {
   if (obj === null || typeof obj !== "object") {
     return obj;
@@ -20,4 +31,15 @@ export function deepClone(obj) {
       return newObj;
     }, {});
   }
+}
+
+export function setImgUrl(ImgUrl) {
+  if (!!ImgUrl && checkConfig(ImgUrl)) {
+    let type = ImgUrl.split(".")[1];
+    let data = fs.readFileSync(ImgUrl);
+    return `data:image/${type};base64,${new Buffer(data, "binary").toString(
+      "base64"
+    )}`;
+  }
+  return ImgUrl;
 }
