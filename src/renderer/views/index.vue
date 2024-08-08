@@ -35,6 +35,12 @@
         :list="chooseContentList"
         @change="setActiveItem"
         :type="tabList[tabIndex].value"
+        :game="game"
+        :typeList="
+          !!gameBaseData && !!gameBaseData.attrTypeList
+            ? gameBaseData.attrTypeList
+            : null
+        "
         @addType="addOtherType"
       ></choose-content>
       <!-- 具体mod选择区域 -->
@@ -164,7 +170,7 @@
           @click="gameChange(index)"
         >
           <div class="gameIcon">
-            <img :src="$setImgUrl(`config/${game}/index.ico`)" />
+            <img :src="$setImgUrl(`config/${item.key}/index.ico`)" />
           </div>
           <div class="gameName">{{ item.name || item.key }}</div>
         </div>
@@ -186,9 +192,10 @@
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
+        <el-button @click="showChangeGame = false">取 消</el-button>
         <el-button
           type="primary"
-          :disabled="indexConfigData.length === 0 && !addGameForm.name"
+          :disabled="!addGameForm.name || !addGameForm.icon"
           @click="addNewGame"
           >确 定</el-button
         >
@@ -379,6 +386,7 @@ export default {
       this.modIndex = -1;
       this.gameBaseData = this.indexConfigData[index];
       this.game = this.gameBaseData.key;
+      this.showChangeGame = false;
 
       // 初始化获取配置
       this.init();
@@ -410,7 +418,12 @@ export default {
             "modsPath",
             modsPath.replace(/\\/g, "/")
           );
-          // this.updateConfig();
+
+          // 更新mod应用路径
+          this.fs.writeFileSync(
+            `config/${this.game}/index.ini`,
+            JSON.stringify(this.gameBaseData, null, 4)
+          );
         }
       );
     },
@@ -482,7 +495,7 @@ export default {
         // 创建配置文件
         this.fs.writeFileSync(
           `${gamePath}/index.ini`,
-          JSON.stringify(gameInfo)
+          JSON.stringify(gameInfo, null, 4)
         );
         // 创建游戏图标
         if (!!this.addGameForm.icon)
@@ -496,15 +509,14 @@ export default {
         this.fsextra.removeSync(this.addGameForm.icon);
       }
 
-      this.showChangeGame = false;
+      if (this.indexConfigData.length === 1) {
+        this.gameChange(0);
+      }
+
       this.addGameForm = {
         name: null,
         icon: null,
       };
-
-      if (this.indexConfigData.length === 1) {
-        this.gameChange(0);
-      }
     },
 
     // 设置对应游戏背景
@@ -839,6 +851,8 @@ export default {
 
     // 读取文件内容
     readConfig(filePath) {
+      // 先判断是否存在
+      if (!this.checkConfig(filePath)) return null;
       // 同步读取配置文件
       const data = this.fs.readFileSync(filePath, "utf-8");
       try {

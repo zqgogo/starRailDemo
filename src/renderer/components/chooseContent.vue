@@ -73,8 +73,15 @@ import { deepClone } from "../utils";
 export default {
   name: "chooseContent",
   props: {
+    game: null,
     type: null,
     list: {
+      type: Array,
+      default: () => {
+        return [];
+      },
+    },
+    typeList: {
       type: Array,
       default: () => {
         return [];
@@ -106,36 +113,6 @@ export default {
           value: "man",
         },
       ],
-      attrTypeList: [
-        {
-          label: "风",
-          value: "feng",
-        },
-        {
-          label: "火",
-          value: "huo",
-        },
-        {
-          label: "雷",
-          value: "lei",
-        },
-        {
-          label: "水",
-          value: "shui",
-        },
-        {
-          label: "冰",
-          value: "bing",
-        },
-        {
-          label: "岩",
-          value: "yan",
-        },
-        {
-          label: "草",
-          value: "cao",
-        },
-      ],
     };
   },
 
@@ -162,6 +139,45 @@ export default {
       return list.sort((a, b) => {
         if (!!a.sort) return a.sort - b.sort;
       });
+    },
+
+    attrTypeList() {
+      console.log("attrTypeList", this.game, this.typeList);
+      if (!!this.typeList && this.typeList.length) {
+        return this.typeList;
+      } else if (this.game === "genshin") {
+        return [
+          {
+            label: "风",
+            value: "feng",
+          },
+          {
+            label: "火",
+            value: "huo",
+          },
+          {
+            label: "雷",
+            value: "lei",
+          },
+          {
+            label: "水",
+            value: "shui",
+          },
+          {
+            label: "冰",
+            value: "bing",
+          },
+          {
+            label: "岩",
+            value: "yan",
+          },
+          {
+            label: "草",
+            value: "cao",
+          },
+        ];
+      }
+      return [];
     },
   },
 
