@@ -541,7 +541,11 @@ export default {
       this.modIndex = -1;
 
       let tabKey = this.tabList[this.tabIndex].value;
-      let modList = this.modConfigData[tabKey][key] || [];
+
+      let modList =  [];
+      if(!!this.modConfigData[tabKey] && !!this.modConfigData[tabKey][key]) {
+        modList = this.modConfigData[tabKey][key]
+      }
 
       if (!!modList && !!modList.length) {
         this.setModActive(0);

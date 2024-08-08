@@ -11,8 +11,8 @@ import "element-ui/lib/theme-chalk/index.css";
 import "./assets/iconfont/iconfont.css";
 import "./assets/style/index.scss";
 
-import VConsole from "vconsole";
-const vConsole = new VConsole();
+// import VConsole from "vconsole";
+// const vConsole = new VConsole();
 
 import { setImgUrl } from "./utils";
 
