@@ -156,8 +156,7 @@
     <el-dialog
       title="选择游戏"
       :visible.sync="showChangeGame"
-      width="500px"
-      height="500px"
+      custom-class="addGameDialog"
       :show-close="false"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
@@ -370,10 +369,15 @@ export default {
         this.showChangeGame = true;
       }
 
+      let indexConfigData = []
       directories.forEach((dir) => {
         let gemeIniPath = `${configDir}/${dir}/index.ini`;
         let gameInfo = this.readConfig(gemeIniPath) || {};
-        this.indexConfigData = [...this.indexConfigData, gameInfo];
+        indexConfigData = [...indexConfigData, gameInfo];
+      });
+
+      this.indexConfigData = indexConfigData.sort(function(a, b) {
+        return a.sort - b.sort
       });
 
       this.gameChange(0);
@@ -468,6 +472,7 @@ export default {
         let gameInfo = {
           key: this.addGameForm.name,
           name: this.addGameForm.name,
+          sort: this.indexConfigData.length,
           tabList: [
             {
               label: "角",
