@@ -264,6 +264,8 @@ export default {
         icon: "",
       },
       normalGameIcon: require("../assets/appIcon.png"),
+
+      localData: {}, // 本地数据
     };
   },
 
@@ -357,6 +359,19 @@ export default {
         this.fs.mkdirSync(configDir);
       }
 
+      console.log(123)
+      // 读取本地配置存储
+      let localData = "config/localData.ini";
+      if(!this.checkConfig(localData)) {
+        this.fs.writeFileSync(
+          localData,
+          JSON.stringify({}, null, 4)
+        )
+        this.localData = {}
+      } else {
+        this.localData = this.readConfig(localData) || {}
+      }
+
       // 初始化所有游戏config數據
       const subdirs = this.fs.readdirSync(configDir);
       const directories = subdirs.filter((subdir) => {
@@ -380,6 +395,16 @@ export default {
         return a.sort - b.sort
       });
 
+      if(!!this.localData.game) {
+        let gameIndex = this.indexConfigData.findIndex(item => {
+          return item.key === this.localData.game;
+        })
+        console.log(gameIndex)
+        if(gameIndex > -1) {
+          return this.gameChange(gameIndex);
+        }
+      }
+
       this.gameChange(0);
     },
 
@@ -394,6 +419,13 @@ export default {
 
       // 初始化获取配置
       this.init();
+
+      // 记录已选游戏
+      this.localData.game = this.game;
+      this.fs.writeFileSync(
+        `config/localData.ini`,
+        JSON.stringify(this.localData, null, 4)
+      );
     },
 
     // 初始化获取配置
