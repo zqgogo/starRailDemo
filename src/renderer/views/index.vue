@@ -585,7 +585,19 @@ export default {
       }
 
       if (!!modList && !!modList.length) {
-        this.setModActive(0);
+        // 检测当前应用的mod
+        let prefixStr = modList[0].roleName;
+        let modPath = this.getModsFrom3DM(prefixStr)
+        console.log("modList", modList)
+        if(!!modPath) {
+          let modName = modPath.split(`${prefixStr}_`)[1];
+
+          let index = modList.findIndex(item => {
+            return item.modName === modName
+          })
+
+          if(index > -1) return this.setModActive(index);
+        }
       }
     },
 
@@ -646,25 +658,14 @@ export default {
     applyMod(isDelete = false) {
       if (!this.modItem) return;
       let modInfo = this.modItem;
-      // 讀取mod目錄下文件
       let modsPath = this.gameBaseData.modsPath;
-      console.log(modsPath);
-      // 非角色mod增加一层文件夹读取
-      if (!!this.activeItem.des) {
-        modsPath = `${modsPath}/${this.activeItem.des}`;
-        try {
-          this.fs.accessSync(modsPath, this.fs.constants.F_OK);
-        } catch (error) {
-          this.fs.mkdirSync(modsPath, { recursive: true });
-        }
-      }
-      let mods = this.readDir(modsPath);
-      let repeatModFileName = mods.find((name) =>
-        name.includes(`${modInfo.roleName}_`)
-      );
+
+      // // 讀取mod目錄下文件
+      let repeatModFileName = this.getModsFrom3DM(modInfo.roleName)
+
       try {
         if (!!repeatModFileName) {
-          this.fsextra.removeSync(`${modsPath}/${repeatModFileName}`);
+          this.fsextra.removeSync(repeatModFileName);
         }
 
         if (!isDelete) {
@@ -686,6 +687,31 @@ export default {
           });
         }
       } catch (error) {}
+    },
+
+    // 讀取mod目錄下文件
+    getModsFrom3DM(prefixStr) {
+      // 讀取mod目錄下文件
+      let modsPath = this.gameBaseData.modsPath;
+      console.log(modsPath);
+
+      // 非角色mod增加一层文件夹读取
+      if (!!this.activeItem.des) {
+        modsPath = `${modsPath}/${this.activeItem.des}`;
+        try {
+          this.fs.accessSync(modsPath, this.fs.constants.F_OK);
+        } catch (error) {
+          this.fs.mkdirSync(modsPath, { recursive: true });
+        }
+      }
+
+      // 获取指定目录下的mod目录list
+      let mods = this.readDir(modsPath);
+      let repeatModFileName = mods.find((name) =>
+        name.includes(`${prefixStr}_`)
+      );
+
+      return repeatModFileName? `${modsPath}/${repeatModFileName}` : null;
     },
 
     // 删除mod记录
