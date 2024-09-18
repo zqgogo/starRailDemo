@@ -359,17 +359,14 @@ export default {
         this.fs.mkdirSync(configDir);
       }
 
-      console.log(123)
+      console.log(123);
       // 读取本地配置存储
       let localData = "config/localData.ini";
-      if(!this.checkConfig(localData)) {
-        this.fs.writeFileSync(
-          localData,
-          JSON.stringify({}, null, 4)
-        )
-        this.localData = {}
+      if (!this.checkConfig(localData)) {
+        this.fs.writeFileSync(localData, JSON.stringify({}, null, 4));
+        this.localData = {};
       } else {
-        this.localData = this.readConfig(localData) || {}
+        this.localData = this.readConfig(localData) || {};
       }
 
       // 初始化所有游戏config數據
@@ -384,23 +381,23 @@ export default {
         this.showChangeGame = true;
       }
 
-      let indexConfigData = []
+      let indexConfigData = [];
       directories.forEach((dir) => {
         let gemeIniPath = `${configDir}/${dir}/index.ini`;
         let gameInfo = this.readConfig(gemeIniPath) || {};
         indexConfigData = [...indexConfigData, gameInfo];
       });
 
-      this.indexConfigData = indexConfigData.sort(function(a, b) {
-        return a.sort - b.sort
+      this.indexConfigData = indexConfigData.sort(function (a, b) {
+        return a.sort - b.sort;
       });
 
-      if(!!this.localData.game) {
-        let gameIndex = this.indexConfigData.findIndex(item => {
+      if (!!this.localData.game) {
+        let gameIndex = this.indexConfigData.findIndex((item) => {
           return item.key === this.localData.game;
-        })
-        console.log(gameIndex)
-        if(gameIndex > -1) {
+        });
+        console.log(gameIndex);
+        if (gameIndex > -1) {
           return this.gameChange(gameIndex);
         }
       }
@@ -579,24 +576,24 @@ export default {
 
       let tabKey = this.tabList[this.tabIndex].value;
 
-      let modList =  [];
-      if(!!this.modConfigData[tabKey] && !!this.modConfigData[tabKey][key]) {
-        modList = this.modConfigData[tabKey][key]
+      let modList = [];
+      if (!!this.modConfigData[tabKey] && !!this.modConfigData[tabKey][key]) {
+        modList = this.modConfigData[tabKey][key];
       }
 
       if (!!modList && !!modList.length) {
         // 检测当前应用的mod
         let prefixStr = modList[0].roleName;
-        let modPath = this.getModsFrom3DM(prefixStr)
-        console.log("modList", modList)
-        if(!!modPath) {
+        let modPath = this.getModsFrom3DM(prefixStr);
+        console.log("modList", modList);
+        if (!!modPath) {
           let modName = modPath.split(`${prefixStr}_`)[1];
 
-          let index = modList.findIndex(item => {
-            return item.modName === modName
-          })
+          let index = modList.findIndex((item) => {
+            return item.modName === modName;
+          });
 
-          if(index > -1) return this.setModActive(index);
+          if (index > -1) return this.setModActive(index);
         }
       }
     },
@@ -659,9 +656,13 @@ export default {
       if (!this.modItem) return;
       let modInfo = this.modItem;
       let modsPath = this.gameBaseData.modsPath;
+      if (!!this.activeItem.des) {
+        modsPath = `${modsPath}/${this.activeItem.des}`;
+      }
 
       // // 讀取mod目錄下文件
-      let repeatModFileName = this.getModsFrom3DM(modInfo.roleName)
+      let repeatModFileName = this.getModsFrom3DM(modInfo.roleName);
+      console.log(repeatModFileName);
 
       try {
         if (!!repeatModFileName) {
@@ -711,7 +712,7 @@ export default {
         name.includes(`${prefixStr}_`)
       );
 
-      return repeatModFileName? `${modsPath}/${repeatModFileName}` : null;
+      return repeatModFileName ? `${modsPath}/${repeatModFileName}` : null;
     },
 
     // 删除mod记录
